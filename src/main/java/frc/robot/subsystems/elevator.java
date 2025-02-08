@@ -7,7 +7,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-
+//port com.revrobotics.spark.config.;
 
 import frc.robot.Constants;
 
@@ -17,7 +17,6 @@ public class elevator extends SubsystemBase {
     private SparkFlex elevatorLeft;
     private SparkFlex elevatorRight;
     public double elevatorLeftSpeedReq;
-
 
     public void intakeSubsytem() {
         SparkFlexConfig config = new SparkFlexConfig();
