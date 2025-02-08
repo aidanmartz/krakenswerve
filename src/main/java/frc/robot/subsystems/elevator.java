@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;

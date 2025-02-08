@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
@@ -32,9 +32,19 @@ public class RobotContainer {
     private final int rotationAxis = XboxController.Axis.kRightX.value;
 
     /* Driver Buttons */
-    private final JoystickButton zeroGyro = new JoystickButton(driver, XboxController.Button.kY.value);
-    private final JoystickButton robotCentric = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
-    private final JoystickButton resetToAbsolute = new JoystickButton(driver, XboxController.Button.kA.value);
+    private final POVButton dPadUp = new POVButton(driver,0);  //zero Gyro
+    private final POVButton dPadRight =new POVButton(driver, 45); // robot centric
+    private final POVButton dPadDown = new POVButton(driver, 180); //reset to Absolute
+    private final JoystickButton rightStick = new JoystickButton(driver, XboxController.Button.kRightStick.value);
+ 
+    private final JoystickButton aButton = new JoystickButton(driver, XboxController.Button.kA.value);
+    private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
+    private final JoystickButton yButton = new JoystickButton(driver, XboxController.Button.kY.value);
+    private final JoystickButton bButton = new JoystickButton(driver, XboxController.Button.kB.value);
+    private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
+    private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
+
+
 
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
@@ -52,9 +62,8 @@ public class RobotContainer {
                 () -> -driver.getRawAxis(translationAxis), 
                 () -> -driver.getRawAxis(strafeAxis), 
                 () -> -driver.getRawAxis(rotationAxis), 
-                () -> robotCentric.getAsBoolean()
-            )
-        );
+                () -> dPadRight.getAsBoolean(), () -> rightStick.getAsBoolean())
+                );
 
         // Configure the button bindings
         configureButtonBindings();
@@ -68,8 +77,8 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         /* Driver Buttons */
-        zeroGyro.onTrue(s_Swerve.zeroHeading());
-        resetToAbsolute.onTrue(s_Swerve.resetModulesToAbsolute());
+        dPadUp.onTrue(s_Swerve.zeroHeading());
+        dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());        
     }
 
     /**
