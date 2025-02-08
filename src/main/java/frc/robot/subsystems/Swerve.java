@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import frc.lib.util.SwerveModule;
 import frc.robot.Constants;
-
+import frc.robot.LimelightHelpers;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -10,7 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import java.util.concurrent.locks.ReentrantLock;
+//import java.util.concurrent.locks.ReentrantLock;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -33,7 +33,7 @@ public class Swerve extends SubsystemBase {
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
     
-    private final ReentrantLock swerveModLock = new ReentrantLock();
+    //private final ReentrantLock swerveModLock = new ReentrantLock();
     private final Notifier odoNotifier;
 
     public Swerve() {
@@ -80,11 +80,43 @@ public class Swerve extends SubsystemBase {
     }catch(Exception e){
       DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", e.getStackTrace());
     }
-
-
     }
 
-    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
+    private double limelightRotation() {
+        double targetAngularVel = LimelightHelpers.getTX("limelight") * SmartDashboard.getNumber("limelight/Note Aim P", Constants.VisionConstants.kCameraAimScaler);
+        targetAngularVel = -1;
+        SmartDashboard.putNumber("limelight/Note Requested Angular Velcity", targetAngularVel);
+        return targetAngularVel;
+    }
+
+    private double limelightY() {
+        double targetAngularVel = LimelightHelpers.getTX("limelight-tag") * SmartDashboard.getNumber("limelight/Note Aim P", Constants.VisionConstants.kCameraAimScaler);
+        targetAngularVel *= -.375;
+        SmartDashboard.putNumber("limelight/Note Requested Angular Velcity", targetAngularVel);
+        return targetAngularVel;
+    }
+
+  private double limelightX() {
+        double targetForwardSpeed = LimelightHelpers.getTY("limelight")* SmartDashboard.getNumber("limelight/Note Range P", Constants.VisionConstants.kCameraRangeScaler);
+        targetForwardSpeed *= -1;
+        SmartDashboard.putNumber("limelight/Note Requested Forward Speed", targetForwardSpeed);
+        return targetForwardSpeed; 
+    }
+
+    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop, boolean isLimelight) {
+       
+       if( isLimelight){ 
+        SwerveModuleState[] swerveModuleStates =
+        Constants.Swerve.swerveKinematics.toSwerveModuleStates(
+            new ChassisSpeeds(
+                                limelightX(), 
+                                limelightY(), 
+                                limelightRotation())
+                            );
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
+
+        
+       } else{
         SwerveModuleState[] swerveModuleStates =
             Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                 fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -99,10 +131,11 @@ public class Swerve extends SubsystemBase {
                                     rotation)
                                 );
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
-
+       
         for(SwerveModule mod : mSwerveMods){
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
+     }
     }    
 
     /* Used by SwerveControllerCommand in Auto */

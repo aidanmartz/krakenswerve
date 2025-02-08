@@ -29,10 +29,9 @@ public final class Constants {
     public static final class Swerve {
 
         public static final int pigeonID = 10;
-        public static final String pigeonCanBus = "Drivetrain"; //TODO: if on canivore, change this to CANivore name or serial number
-
+        public static final String pigeonCanBus = "DriveTrain"; //
         public static final boolean focEnabled = true; //TODO: This must be tuned to specific robot
-        public static final boolean isOnCANivore = true;
+        public static final boolean isOnCANivore = false;
 
         public static final COTSTalonFXSwerveConstants chosenModule =  //TODO: This must be tuned to specific robot
         COTSTalonFXSwerveConstants.WCP.SwerveXFlipped.KrakenX60(COTSTalonFXSwerveConstants.WCP.SwerveXFlipped.driveRatios.X3_10);
@@ -178,4 +177,15 @@ public final class Constants {
             new TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+
+    public static final class VisionConstants {
+        public static final double kCameraRangeScaler = 0.015;
+        public static final double kCameraAimScaler = 0.033;
+        public static final double kCameraAmpTargetArea = 1.1; 
+        public static final double kCameraSpeakerTargetArea = 0.71; 
+        public static final double kCamHeight = 0.41;
+        public static final double kTagHeight = 1.27;
+        public static final double kCamPitch = Math.PI / 4; // ~45 degrees (pi/4 rad)
+      }
+    
 }
