@@ -29,9 +29,9 @@ public final class Constants {
     public static final class Swerve {
 
         public static final int pigeonID = 10;
-        public static final String pigeonCanBus = "Drivetrain"; //TODO: if on canivore, change this to CANivore name or serial number
+        public static final String pigeonCanBus = "rio";
 
-        public static final boolean focEnabled = true; //TODO: This must be tuned to specific robot
+        public static final boolean focEnabled = true;
         public static final boolean isOnCANivore = true;
 
         public static final COTSTalonFXSwerveConstants chosenModule =  //TODO: This must be tuned to specific robot
