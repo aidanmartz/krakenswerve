@@ -32,6 +32,7 @@ public class Swerve extends SubsystemBase {
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
+    public Boolean ll;
     
     //private final ReentrantLock swerveModLock = new ReentrantLock();
     private final Notifier odoNotifier;
@@ -40,7 +41,7 @@ public class Swerve extends SubsystemBase {
         gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.pigeonCanBus);
         gyro.getConfigurator().apply(new Pigeon2Configuration());
         gyro.setYaw(0);
-
+        ll = false;
 
 
         boolean isFastOdo = Constants.Swerve.isOnCANivore;
@@ -83,41 +84,37 @@ public class Swerve extends SubsystemBase {
     }
 
     private double limelightRotation() {
-        double targetAngularVel = LimelightHelpers.getTX("limelight") * SmartDashboard.getNumber("limelight/Note Aim P", Constants.VisionConstants.kCameraAimScaler);
-        targetAngularVel = -1;
-        SmartDashboard.putNumber("limelight/Note Requested Angular Velcity", targetAngularVel);
+        double targetAngularVel = LimelightHelpers.getTXNC("limelight") * Constants.VisionConstants.kCameraAimScaler;
+        targetAngularVel *= -1;
+        SmartDashboard.putNumber("limelight/Angular Velcity", targetAngularVel);
         return targetAngularVel;
     }
 
-    private double limelightY() {
-        double targetAngularVel = LimelightHelpers.getTX("limelight-tag") * SmartDashboard.getNumber("limelight/Note Aim P", Constants.VisionConstants.kCameraAimScaler);
-        targetAngularVel *= -.375;
-        SmartDashboard.putNumber("limelight/Note Requested Angular Velcity", targetAngularVel);
-        return targetAngularVel;
-    }
 
   private double limelightX() {
-        double targetForwardSpeed = LimelightHelpers.getTY("limelight")* SmartDashboard.getNumber("limelight/Note Range P", Constants.VisionConstants.kCameraRangeScaler);
-        targetForwardSpeed *= -1;
-        SmartDashboard.putNumber("limelight/Note Requested Forward Speed", targetForwardSpeed);
+        double targetForwardSpeed = Constants.VisionConstants.kCameraRangeScaler / LimelightHelpers.getTA("limelight");
+        //targetForwardSpeed *= 1;
+        SmartDashboard.putNumber("limelight/Forward Speed", targetForwardSpeed);
         return targetForwardSpeed; 
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop, boolean isLimelight) {
-       
-       if( isLimelight){ 
-        SwerveModuleState[] swerveModuleStates =
-        Constants.Swerve.swerveKinematics.toSwerveModuleStates(
-            new ChassisSpeeds(
+        SwerveModuleState[] swerveModuleStates;
+        if( isLimelight){ 
+        ll = true;
+        swerveModuleStates =
+            Constants.Swerve.swerveKinematics.toSwerveModuleStates(
+                new ChassisSpeeds(
                                 limelightX(), 
-                                limelightY(), 
+                                translation.getY(), 
                                 limelightRotation())
                             );
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
 
         
        } else{
-        SwerveModuleState[] swerveModuleStates =
+        ll=false;
+        swerveModuleStates =
             Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                 fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
                                     translation.getX(), 
@@ -131,11 +128,11 @@ public class Swerve extends SubsystemBase {
                                     rotation)
                                 );
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
-       
+        } 
         for(SwerveModule mod : mSwerveMods){
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
-     }
+     
     }    
 
     /* Used by SwerveControllerCommand in Auto */
@@ -235,11 +232,15 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic(){
         swerveOdometry.update(getGyroYaw(), getModulePositions());
-
+        SmartDashboard.putBoolean("limelight/use limelight", ll);
+        SmartDashboard.putNumber("limelight/TX", LimelightHelpers.getTXNC("limelight"));
+        SmartDashboard.putNumber("limelight/TA", LimelightHelpers.getTA("limelight"));
         for(SwerveModule mod : mSwerveMods){
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
+            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond); 
+
+   
         }
     }
 }

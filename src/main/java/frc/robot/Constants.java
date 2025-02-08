@@ -29,16 +29,9 @@ public final class Constants {
     public static final class Swerve {
 
         public static final int pigeonID = 10;
-<<<<<<< HEAD
-        public static final String pigeonCanBus = "rio";
-
-        public static final boolean focEnabled = true;
-        public static final boolean isOnCANivore = true;
-=======
-        public static final String pigeonCanBus = "DriveTrain"; //
+        public static final String pigeonCanBus = "rio"; //
         public static final boolean focEnabled = true; //TODO: This must be tuned to specific robot
         public static final boolean isOnCANivore = false;
->>>>>>> 2a26c179768df55b257934e18ecc91ed67a79503
 
         public static final COTSTalonFXSwerveConstants chosenModule =  //TODO: This must be tuned to specific robot
         COTSTalonFXSwerveConstants.WCP.SwerveXFlipped.KrakenX60(COTSTalonFXSwerveConstants.WCP.SwerveXFlipped.driveRatios.X3_10);
@@ -186,7 +179,7 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
-        public static final double kCameraRangeScaler = 0.015;
+        public static final double kCameraRangeScaler = 0.5;
         public static final double kCameraAimScaler = 0.033;
         public static final double kCameraAmpTargetArea = 1.1; 
         public static final double kCameraSpeakerTargetArea = 0.71; 
