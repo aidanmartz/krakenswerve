@@ -1,4 +1,5 @@
 package frc.robot;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -12,11 +13,13 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
-
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -32,11 +35,11 @@ public class RobotContainer {
     private final int rotationAxis = XboxController.Axis.kRightX.value;
 
     /* Driver Buttons */
-    private final POVButton dPadUp = new POVButton(driver,0);  //zero Gyro
-    private final POVButton dPadRight =new POVButton(driver, 45); // robot centric
-    private final POVButton dPadDown = new POVButton(driver, 180); //reset to Absolute
+    private final POVButton dPadUp = new POVButton(driver, 0); // zero Gyro
+    private final POVButton dPadRight = new POVButton(driver, 45); // robot centric
+    private final POVButton dPadDown = new POVButton(driver, 180); // reset to Absolute
     private final JoystickButton rightStick = new JoystickButton(driver, XboxController.Button.kRightStick.value);
- 
+
     private final JoystickButton aButton = new JoystickButton(driver, XboxController.Button.kA.value);
     private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
     private final JoystickButton yButton = new JoystickButton(driver, XboxController.Button.kY.value);
@@ -44,41 +47,41 @@ public class RobotContainer {
     private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
     private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
 
-
-
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
 
-
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
     public RobotContainer() {
 
-         autoChooser = AutoBuilder.buildAutoChooser();
+        autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         s_Swerve.setDefaultCommand(
-            new TeleopSwerve(
-                s_Swerve, 
-                () -> -driver.getRawAxis(translationAxis), 
-                () -> -driver.getRawAxis(strafeAxis), 
-                () -> -driver.getRawAxis(rotationAxis), 
-                () -> dPadRight.getAsBoolean(), () -> rightStick.getAsBoolean())
-                );
+                new TeleopSwerve(
+                        s_Swerve,
+                        () -> -driver.getRawAxis(translationAxis),
+                        () -> -driver.getRawAxis(strafeAxis),
+                        () -> -driver.getRawAxis(rotationAxis),
+                        () -> dPadRight.getAsBoolean(), () -> rightStick.getAsBoolean()));
 
         // Configure the button bindings
         configureButtonBindings();
     }
 
     /**
-     * Use this method to define your button->command mappings. Buttons can be created by
+     * Use this method to define your button->command mappings. Buttons can be
+     * created by
      * instantiating a {@link GenericHID} or one of its subclasses ({@link
-     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+     * it to a {@link
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
         /* Driver Buttons */
         dPadUp.onTrue(s_Swerve.zeroHeading());
-        dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());        
+        dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
     }
 
     /**

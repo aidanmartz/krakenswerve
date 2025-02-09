@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
-import java.util.EnumMap;
-import java.util.Map;
+//import java.util.EnumMap;
+//import java.util.Map;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -27,28 +27,28 @@ public class elevator extends SubsystemBase {
         elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
         elevatorLeftSpeedReq = 0;
         config
-            .inverted(true)
-            .idleMode(IdleMode.kBrake);
+                .inverted(true)
+                .idleMode(IdleMode.kBrake);
         config.encoder
-            .positionConversionFactor(1000)
-            .velocityConversionFactor(1000);
+                .positionConversionFactor(1000)
+                .velocityConversionFactor(1000);
         config.closedLoop
-            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .pid(1.0, 0.0, 0.0);
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .pid(1.0, 0.0, 0.0);
         elevatorLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevatorRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
-    
-    public void elevatorLeft(){
+
+    public void elevatorLeft() {
         elevatorLeftSpeedReq = -1 * Constants.VortexMotorConstants.kFreeSpeedRpm;
         elevatorLeft.set(elevatorLeftSpeedReq);
         elevatorRight.set(elevatorLeftSpeedReq);
     }
 
-    public void elevatorRight(){
+    public void elevatorRight() {
         elevatorLeftSpeedReq = -1 * Constants.VortexMotorConstants.kFreeSpeedRpm;
         elevatorLeft.set(elevatorLeftSpeedReq);
         elevatorRight.set(elevatorLeftSpeedReq);
     }
-    
+
 }
