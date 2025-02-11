@@ -16,12 +16,12 @@ public final class Constants {
     public static final double stickDeadband = 0.1;
 
     public static final class VortexMotorConstants {
-        public static final int kFreeSpeedRpm = 6784;
+        public static final double kFreeSpeedRpm = 0.1;
     }
 
     public static final class CANConstants {
-        public static final int intakeCoralId = 13;
-        public static final int intakeAlgaeId = 14;
+        public static final int pivot1Id = 13;
+        public static final int pivot2Id = 14;
         public static final int elevatorLeftId = 2;
         public static final int elevatorRightId = 3;
 

@@ -47,6 +47,7 @@ public class RobotContainer {
     private final JoystickButton bButton = new JoystickButton(driver, XboxController.Button.kB.value);
     private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
     private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
+    private final JoystickButton leftStick = new JoystickButton(driver, XboxController.Button.kLeftStick.value);
 
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
@@ -86,10 +87,11 @@ public class RobotContainer {
         dPadUp.onTrue(s_Swerve.zeroHeading());
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
 
-        aButton.onTrue(elevators.moveTo(Stop.L1));
-        xButton.onTrue(elevators.moveTo(Stop.L2));
-        yButton.onTrue(elevators.moveTo(Stop.L3));
-        bButton.onTrue(elevators.moveTo(Stop.L4));
+        aButton.whileTrue(elevators.moveTo(Stop.L1));
+        xButton.whileTrue(elevators.moveTo(Stop.L2));
+        yButton.whileTrue(elevators.moveTo(Stop.L3));
+        bButton.whileTrue(elevators.moveTo(Stop.L4));
+        leftStick.whileTrue(elevators.moveTo(Stop.SAFE));
 
     }
 
