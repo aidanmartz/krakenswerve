@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.elevator.Stop;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -49,6 +50,7 @@ public class RobotContainer {
 
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
+    private final elevator elevators = new elevator();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -70,6 +72,7 @@ public class RobotContainer {
         configureButtonBindings();
     }
 
+
     /**
      * Use this method to define your button->command mappings. Buttons can be
      * created by
@@ -82,7 +85,14 @@ public class RobotContainer {
         /* Driver Buttons */
         dPadUp.onTrue(s_Swerve.zeroHeading());
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
+
+        aButton.onTrue(elevators.moveTo(Stop.L1));
+        xButton.onTrue(elevators.moveTo(Stop.L2));
+        yButton.onTrue(elevators.moveTo(Stop.L3));
+        bButton.onTrue(elevators.moveTo(Stop.L4));
+
     }
+
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

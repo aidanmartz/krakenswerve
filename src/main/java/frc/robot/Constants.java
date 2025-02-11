@@ -27,6 +27,25 @@ public final class Constants {
 
     }
 
+    public static final class elevatorConstants {
+        /* IDS for elevator motors*/
+        public static final int elevatorLeftId = 2;
+        public static final int elevatorRightId = 3;
+
+        /* CANBus */
+        public static final String canBus = "rio";
+
+        /* Elevator dimensions */
+        public static final double thickness = 2.0; // Thickness of the elevator (only for Mechanism2d visualization)
+        public static final double setback = 9.5; // Distance from front edge of robot (only for Mechanism2d visualization)
+        public static final double bellyHeight = 0.755; // Height of the top surface of the belly pan from the ground
+        public static final double baseHeight = 12.0 + bellyHeight; // Height of elevator in inches when it is at zero position
+        public static final double maxHeight = 72.0 + bellyHeight; // Height that elevator should never exceed
+        public static final double endEffectorHeight = 6.0; // Height of end effector "target" above elevator height
+        public static final double rotPerInch = 0.704;
+
+    }
+
     public static final class Swerve {
 
         public static final int pigeonID = 10;

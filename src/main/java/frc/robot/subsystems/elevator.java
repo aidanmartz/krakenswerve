@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
-
-//import java.util.EnumMap;
-//import java.util.Map;
-
+import java.util.EnumMap;
+import java.util.Map;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -10,10 +8,9 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-//port com.revrobotics.spark.config.;
-
 import frc.robot.Constants;
-
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class elevator extends SubsystemBase {
@@ -21,7 +18,10 @@ public class elevator extends SubsystemBase {
     private SparkFlex elevatorRight;
     public double elevatorLeftSpeedReq;
 
-    public void intakeSubsytem() {
+    private Stop nextStop = Stop.SAFE;
+    private double currentLevel = 0.0;
+
+    public void elevatorSubsytem() {
         SparkFlexConfig config = new SparkFlexConfig();
         elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
         elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
@@ -49,6 +49,41 @@ public class elevator extends SubsystemBase {
         elevatorLeftSpeedReq = -1 * Constants.VortexMotorConstants.kFreeSpeedRpm;
         elevatorLeft.set(elevatorLeftSpeedReq);
         elevatorRight.set(elevatorLeftSpeedReq);
+    }
+
+    public enum Stop {
+        // Intake occurs at zero
+        SAFE,
+        L1,
+        L2,
+        L2_ALGAE,
+        L3,
+        L3_ALGAE,
+        L4
+    };
+
+    private final EnumMap<Stop, Double> elevatorHeights = new EnumMap<>(Map.ofEntries(
+      Map.entry(Stop.SAFE, Constants.elevatorConstants.baseHeight + 2.5),
+      Map.entry(Stop.L1, 26.0 - Constants.elevatorConstants.endEffectorHeight),
+      Map.entry(Stop.L2, 35.5 - Constants.elevatorConstants.endEffectorHeight),
+      Map.entry(Stop.L2_ALGAE, 38.0 - Constants.elevatorConstants.endEffectorHeight),
+      Map.entry(Stop.L3, 52.5 - Constants.elevatorConstants.endEffectorHeight),
+      Map.entry(Stop.L3_ALGAE, 55.0 - Constants.elevatorConstants.endEffectorHeight),
+      Map.entry(Stop.L4, 77.5 - Constants.elevatorConstants.endEffectorHeight)
+    ));
+
+    public Command moveTo(Stop stop){
+        return Commands.runOnce(() ->  setLevel(elevatorHeights.get(stop)), this);
+    }
+
+    public void setLevel(double level){
+        currentLevel = level;
+        elevatorLeft.getEncoder().setPosition(level);
+        elevatorRight.getEncoder().setPosition(level);
+    }
+
+    public double getLevel(){
+        return currentLevel;
     }
 
 }
