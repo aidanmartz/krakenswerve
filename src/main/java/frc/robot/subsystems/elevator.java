@@ -3,15 +3,12 @@ import java.util.EnumMap;
 import java.util.Map;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import frc.robot.Constants;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,7 +20,7 @@ public class elevator extends SubsystemBase {
     private SparkFlex elevatorRight;
     public double elevatorLeftSpeedReq;
     public double pivotSpeedReq;
-    private Stop nextStop = Stop.SAFE;
+    //private Stop nextStop = Stop.SAFE;
     private double currentLevel = 0.0;
     private double currentPivot = 0.0;
     
@@ -71,6 +68,10 @@ public class elevator extends SubsystemBase {
         currentPivot = pos;
         pivotRight.getEncoder().setPosition(pos);
         pivotRight.getEncoder().setPosition(pos);
+    }
+
+    public double getPivotPos(){
+        return currentPivot;
     }
 
     public enum Pivots {
