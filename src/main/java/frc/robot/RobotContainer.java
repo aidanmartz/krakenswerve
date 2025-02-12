@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.elevator.Pivots;
 import frc.robot.subsystems.elevator.Stop;
 
 /**
@@ -87,11 +88,16 @@ public class RobotContainer {
         dPadUp.onTrue(s_Swerve.zeroHeading());
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
 
-        aButton.whileTrue(elevators.moveTo(Stop.L1));
-        xButton.whileTrue(elevators.moveTo(Stop.L2));
-        yButton.whileTrue(elevators.moveTo(Stop.L3));
-        bButton.whileTrue(elevators.moveTo(Stop.L4));
-        leftStick.whileTrue(elevators.moveTo(Stop.SAFE));
+        aButton.whileTrue(elevators.moveTo(Stop.L1)
+        .andThen(elevators.pivotTo(Pivots.Shoot)));
+        xButton.whileTrue(elevators.moveTo(Stop.L2)
+        .andThen(elevators.pivotTo(Pivots.Shoot)));
+        yButton.whileTrue(elevators.moveTo(Stop.L3)
+        .andThen(elevators.pivotTo(Pivots.Shoot)));
+        bButton.whileTrue(elevators.moveTo(Stop.L4)
+        .andThen(elevators.pivotTo(Pivots.Shoot)));
+        leftStick.whileTrue(elevators.moveTo(Stop.SAFE)
+        .andThen(elevators.pivotTo(Pivots.Intake)));
 
     }
 

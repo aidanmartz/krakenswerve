@@ -20,17 +20,17 @@ public final class Constants {
     }
 
     public static final class CANConstants {
-        public static final int pivot1Id = 13;
-        public static final int pivot2Id = 14;
-        public static final int elevatorLeftId = 2;
-        public static final int elevatorRightId = 3;
+        public static final int pivotLeftId = 20;
+        public static final int pivotRightId = 21;
+        public static final int elevatorLeftId = 30;
+        public static final int elevatorRightId = 31;
 
     }
 
     public static final class elevatorConstants {
         /* IDS for elevator motors*/
-        public static final int elevatorLeftId = 2;
-        public static final int elevatorRightId = 3;
+        public static final int elevatorLeftId = 20;
+        public static final int elevatorRightId = 21;
 
         /* CANBus */
         public static final String canBus = "rio";

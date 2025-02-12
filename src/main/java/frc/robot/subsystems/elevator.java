@@ -17,19 +17,20 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class elevator extends SubsystemBase {
-    private SparkFlex pivot1;
-    private SparkFlex pivot2;
+    private SparkFlex pivotLeft;
+    private SparkFlex pivotRight;
     private SparkFlex elevatorLeft;
     private SparkFlex elevatorRight;
     public double elevatorLeftSpeedReq;
     public double pivotSpeedReq;
     private Stop nextStop = Stop.SAFE;
     private double currentLevel = 0.0;
+    private double currentPivot = 0.0;
     
     public void intakeSubsystem(){
         SparkFlexConfig config = new SparkFlexConfig();
-        pivot1 = new SparkFlex(Constants.CANConstants.pivot1Id, MotorType.kBrushless);
-        pivot2 = new SparkFlex(Constants.CANConstants.pivot2Id, MotorType.kBrushless);
+        pivotLeft = new SparkFlex(Constants.CANConstants.pivotLeftId, MotorType.kBrushless);
+        pivotRight = new SparkFlex(Constants.CANConstants.pivotRightId, MotorType.kBrushless);
         pivotSpeedReq = 0;
         config
             .inverted(true)
@@ -40,21 +41,8 @@ public class elevator extends SubsystemBase {
         config.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pid(1.0, 0.0, 0.0);
-        pivot1.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        pivot2.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    }
-
-    public void funnel(){
-        pivotSpeedReq = -1 * Constants.VortexMotorConstants.kFreeSpeedRpm;
-        pivot1.set(-pivotSpeedReq);
-        pivot2.set(pivotSpeedReq);
-    }
-
-    public void out(){
-        pivotSpeedReq = -1 * Constants.VortexMotorConstants.kFreeSpeedRpm;
-        pivot1.set(pivotSpeedReq);
-        pivot2.set(-pivotSpeedReq);
-
+        pivotLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        pivotRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void elevatorSubsytem() {
@@ -74,6 +62,26 @@ public class elevator extends SubsystemBase {
         elevatorLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevatorRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
+
+    public Command pivotTo(Pivots pivot){
+        return Commands.runOnce(() -> setPivotPos(pivotsPos.get(pivot)));
+    }
+
+    public void setPivotPos(double pos){
+        currentPivot = pos;
+        pivotRight.getEncoder().setPosition(pos);
+        pivotRight.getEncoder().setPosition(pos);
+    }
+
+    public enum Pivots {
+        Intake,
+        Shoot
+    };
+
+    private final EnumMap<Pivots, Double> pivotsPos = new EnumMap<>(Map.ofEntries(
+      Map.entry(Pivots.Intake, 0.1),
+      Map.entry(Pivots.Shoot, 20.0)
+    ));
 
     public enum Stop {
         // Intake occurs at zero
@@ -100,18 +108,11 @@ public class elevator extends SubsystemBase {
         return Commands.runOnce(() ->  setLevel(elevatorHeights.get(stop)), this);
     }
 
-    
-
     public void setLevel(double level){
         currentLevel = level;
         elevatorLeft.getEncoder().setPosition(level);
         elevatorRight.getEncoder().setPosition(level);
-        if(level == elevatorHeights.get(Stop.SAFE)){
-            funnel();
-        } else {
-            out();
-        }
-        
+   
     }
 
     public double getLevel(){
