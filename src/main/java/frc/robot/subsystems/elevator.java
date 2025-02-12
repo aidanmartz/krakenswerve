@@ -60,6 +60,22 @@ public class elevator extends SubsystemBase {
         elevatorRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
+    private final EnumMap<Pivots, Double> pivotsPos = new EnumMap<>(Map.ofEntries(
+      Map.entry(Pivots.Intake, 0.1),
+      Map.entry(Pivots.Shoot, 20.0)
+    ));
+
+    public enum Stop {
+        // Intake occurs at zero
+        SAFE,
+        L1,
+        L2,
+        L2_ALGAE,
+        L3,
+        L3_ALGAE,
+        L4
+    };
+
     public Command pivotTo(Pivots pivot){
         return Commands.runOnce(() -> setPivotPos(pivotsPos.get(pivot)));
     }
@@ -77,22 +93,6 @@ public class elevator extends SubsystemBase {
     public enum Pivots {
         Intake,
         Shoot
-    };
-
-    private final EnumMap<Pivots, Double> pivotsPos = new EnumMap<>(Map.ofEntries(
-      Map.entry(Pivots.Intake, 0.1),
-      Map.entry(Pivots.Shoot, 20.0)
-    ));
-
-    public enum Stop {
-        // Intake occurs at zero
-        SAFE,
-        L1,
-        L2,
-        L2_ALGAE,
-        L3,
-        L3_ALGAE,
-        L4
     };
 
     private final EnumMap<Stop, Double> elevatorHeights = new EnumMap<>(Map.ofEntries(
