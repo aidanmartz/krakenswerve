@@ -28,12 +28,6 @@ public final class Constants {
     }
 
     public static final class elevatorConstants {
-        /* IDS for elevator motors*/
-        public static final int elevatorLeftId = 20;
-        public static final int elevatorRightId = 21;
-
-        /* CANBus */
-        public static final String canBus = "rio";
 
         /* Elevator dimensions */
         public static final double thickness = 2.0; // Thickness of the elevator (only for Mechanism2d visualization)
