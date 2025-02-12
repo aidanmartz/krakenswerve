@@ -88,16 +88,16 @@ public class RobotContainer {
         dPadUp.onTrue(s_Swerve.zeroHeading());
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
 
-        aButton.whileTrue(elevators.moveTo(Stop.L1)
-        .andThen(elevators.pivotTo(Pivots.Shoot)));
-        xButton.whileTrue(elevators.moveTo(Stop.L2)
-        .andThen(elevators.pivotTo(Pivots.Shoot)));
-        yButton.whileTrue(elevators.moveTo(Stop.L3)
-        .andThen(elevators.pivotTo(Pivots.Shoot)));
-        bButton.whileTrue(elevators.moveTo(Stop.L4)
-        .andThen(elevators.pivotTo(Pivots.Shoot)));
-        leftStick.whileTrue(elevators.moveTo(Stop.SAFE)
-        .andThen(elevators.pivotTo(Pivots.Intake)));
+        aButton.whileTrue(elevators.moveTo(Stop.L1));
+       // .andThen(elevators.pivotTo(Pivots.Shoot)));
+        xButton.whileTrue(elevators.moveTo(Stop.L2));
+       // .andThen(elevators.pivotTo(Pivots.Shoot)));
+        yButton.whileTrue(elevators.moveTo(Stop.L3));
+      //  .andThen(elevators.pivotTo(Pivots.Shoot)));
+        bButton.whileTrue(elevators.moveTo(Stop.L4));
+       // .andThen(elevators.pivotTo(Pivots.Shoot)));
+        leftStick.whileTrue(elevators.moveTo(Stop.SAFE));
+       // .andThen(elevators.pivotTo(Pivots.Intake)));
 
     }
 

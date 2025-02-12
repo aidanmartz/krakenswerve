@@ -16,7 +16,7 @@ public final class Constants {
     public static final double stickDeadband = 0.1;
 
     public static final class VortexMotorConstants {
-        public static final double kFreeSpeedRpm = 0.1;
+        public static final double kFreeSpeedRpm = 0.5;
     }
 
     public static final class CANConstants {
@@ -29,8 +29,8 @@ public final class Constants {
 
     public static final class elevatorConstants {
         /* IDS for elevator motors*/
-        public static final int elevatorLeftId = 20;
-        public static final int elevatorRightId = 21;
+        public static final int elevatorLeftId = 30;
+        public static final int elevatorRightId = 31;
 
         /* CANBus */
         public static final String canBus = "rio";

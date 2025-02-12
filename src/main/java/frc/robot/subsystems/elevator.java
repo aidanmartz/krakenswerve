@@ -23,6 +23,12 @@ public class elevator extends SubsystemBase {
     //private Stop nextStop = Stop.SAFE;
     private double currentLevel = 0.0;
     private double currentPivot = 0.0;
+
+    public elevator(){
+        intakeSubsystem();
+        elevatorLeftSubsystem();
+        elevatorRightSubsystem();
+    }
     
     public void intakeSubsystem(){
         SparkFlexConfig config = new SparkFlexConfig();
@@ -42,10 +48,9 @@ public class elevator extends SubsystemBase {
         pivotRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    public void elevatorSubsytem() {
+    public void elevatorLeftSubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
         elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
-        elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
         elevatorLeftSpeedReq = 0;
         config
                 .inverted(true)
@@ -57,6 +62,21 @@ public class elevator extends SubsystemBase {
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(1.0, 0.0, 0.0);
         elevatorLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    public void elevatorRightSubsystem(){
+        SparkFlexConfig config = new SparkFlexConfig();
+        elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
+        elevatorLeftSpeedReq = 0;
+        config
+                .inverted(false)
+                .idleMode(IdleMode.kBrake);
+        config.encoder
+                .positionConversionFactor(1000)
+                .velocityConversionFactor(1000);
+        config.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .pid(1.0, 0.0, 0.0);
         elevatorRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
