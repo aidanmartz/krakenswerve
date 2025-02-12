@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.elevator.Pivots;
+import frc.robot.subsystems.elevator.Stop;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -44,11 +46,13 @@ public class RobotContainer {
     private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
     private final JoystickButton yButton = new JoystickButton(driver, XboxController.Button.kY.value);
     private final JoystickButton bButton = new JoystickButton(driver, XboxController.Button.kB.value);
-    private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
-    private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
+    //private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
+    //private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
+    private final JoystickButton leftStick = new JoystickButton(driver, XboxController.Button.kLeftStick.value);
 
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
+    private final elevator elevators = new elevator();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -70,6 +74,7 @@ public class RobotContainer {
         configureButtonBindings();
     }
 
+
     /**
      * Use this method to define your button->command mappings. Buttons can be
      * created by
@@ -82,7 +87,20 @@ public class RobotContainer {
         /* Driver Buttons */
         dPadUp.onTrue(s_Swerve.zeroHeading());
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
+
+        aButton.whileTrue(elevators.moveTo(Stop.L1)
+        .andThen(elevators.pivotTo(Pivots.Shoot)));
+        xButton.whileTrue(elevators.moveTo(Stop.L2)
+        .andThen(elevators.pivotTo(Pivots.Shoot)));
+        yButton.whileTrue(elevators.moveTo(Stop.L3)
+        .andThen(elevators.pivotTo(Pivots.Shoot)));
+        bButton.whileTrue(elevators.moveTo(Stop.L4)
+        .andThen(elevators.pivotTo(Pivots.Shoot)));
+        leftStick.whileTrue(elevators.moveTo(Stop.SAFE)
+        .andThen(elevators.pivotTo(Pivots.Intake)));
+
     }
+
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
