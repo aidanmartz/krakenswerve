@@ -54,12 +54,8 @@ public class elevator extends SubsystemBase {
         SparkFlexConfig config = new SparkFlexConfig();
 
         elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
-<<<<<<< HEAD
-        elevatorLeftSpeedReq = 0;
-=======
         elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
 
->>>>>>> 1d03a1fe3022704a0b758c41cfd6aa68ba045091
         config
                 .inverted(true)
                 .idleMode(IdleMode.kBrake);
@@ -71,13 +67,16 @@ public class elevator extends SubsystemBase {
                 .pid(1.0, 0.0, 0.0);
 
         elevatorLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-<<<<<<< HEAD
+        elevatorRight.configure(config.follow(Constants.CANConstants.elevatorLeftId, true),
+            ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    public void elevatorRightSubsystem(){
+    public void elevatorRightSubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
+
+        elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
         elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
-        elevatorLeftSpeedReq = 0;
+
         config
                 .inverted(false)
                 .idleMode(IdleMode.kBrake);
@@ -87,11 +86,10 @@ public class elevator extends SubsystemBase {
         config.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(1.0, 0.0, 0.0);
-        elevatorRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-=======
+
+        elevatorLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevatorRight.configure(config.follow(Constants.CANConstants.elevatorLeftId, true),
             ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
->>>>>>> 1d03a1fe3022704a0b758c41cfd6aa68ba045091
     }
 
     public enum Pivots {
