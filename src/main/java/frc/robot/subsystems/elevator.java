@@ -5,11 +5,10 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.*;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import frc.robot.Constants;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,22 +18,23 @@ public class elevator extends SubsystemBase {
     private SparkFlex pivotRight;
     private SparkFlex elevatorLeft;
     private SparkFlex elevatorRight;
-
+    public double elevatorLeftSpeedReq;
+    public double pivotSpeedReq;
+    //private Stop nextStop = Stop.SAFE;
     private double currentLevel = 0.0;
     private double currentPivot = 0.0;
 
     public elevator(){
-        intakeSubsystem();
+        pivotLeftSubsystem();
+        pivotRightSubsystem();
         elevatorLeftSubsystem();
-        elevatorRightSubsystem();
+        elevatorRightubsystem();
     }
     
-    public void intakeSubsystem(){
+    public void pivotLeftSubsystem(){
         SparkFlexConfig config = new SparkFlexConfig();
-        
         pivotLeft = new SparkFlex(Constants.CANConstants.pivotLeftId, MotorType.kBrushless);
-        pivotRight = new SparkFlex(Constants.CANConstants.pivotRightId, MotorType.kBrushless);
-
+        pivotSpeedReq = 0;
         config
             .inverted(true)
             .idleMode(IdleMode.kBrake);
@@ -44,18 +44,29 @@ public class elevator extends SubsystemBase {
         config.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pid(1.0, 0.0, 0.0);
-        
         pivotLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        pivotRight.configure(config.follow(Constants.CANConstants.pivotLeftId, true),
-            ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    public void pivotRightSubsystem(){
+        SparkFlexConfig config = new SparkFlexConfig();
+        pivotRight = new SparkFlex(Constants.CANConstants.pivotRightId, MotorType.kBrushless);
+        pivotSpeedReq = 0;
+        config
+            .inverted(false)
+            .idleMode(IdleMode.kBrake);
+        config.encoder
+            .positionConversionFactor(1000)
+            .velocityConversionFactor(1000);
+        config.closedLoop
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .pid(1.0, 0.0, 0.0);
+        pivotRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void elevatorLeftSubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
-
         elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
-        elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
-
+        elevatorLeftSpeedReq = 0;
         config
                 .inverted(true)
                 .idleMode(IdleMode.kBrake);
@@ -65,18 +76,13 @@ public class elevator extends SubsystemBase {
         config.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(1.0, 0.0, 0.0);
-
         elevatorLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        elevatorRight.configure(config.follow(Constants.CANConstants.elevatorLeftId, true),
-            ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    public void elevatorRightSubsystem() {
+    public void elevatorRightubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
-
-        elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
         elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
-
+        elevatorLeftSpeedReq = 0;
         config
                 .inverted(false)
                 .idleMode(IdleMode.kBrake);
@@ -86,34 +92,7 @@ public class elevator extends SubsystemBase {
         config.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(1.0, 0.0, 0.0);
-
-        elevatorLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        elevatorRight.configure(config.follow(Constants.CANConstants.elevatorLeftId, true),
-            ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    }
-
-    public enum Pivots {
-        Intake,
-        Shoot
-    };
-
-    private final EnumMap<Pivots, Double> pivotsPos = new EnumMap<>(Map.ofEntries(
-      Map.entry(Pivots.Intake, 0.1),
-      Map.entry(Pivots.Shoot, 20.0)
-    ));
-
-    public Command pivotTo(Pivots pivot){
-        return Commands.runOnce(() -> setPivotPos(pivotsPos.get(pivot)));
-    }
-
-    public void setPivotPos(double pos){
-        currentPivot = pos;
-        pivotRight.getEncoder().setPosition(pos);
-        pivotRight.getEncoder().setPosition(pos);
-    }
-
-    public double getPivotPos(){
-        return currentPivot;
+        elevatorRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public enum Stop {
@@ -128,14 +107,25 @@ public class elevator extends SubsystemBase {
     };
 
     private final EnumMap<Stop, Double> elevatorHeights = new EnumMap<>(Map.ofEntries(
-      Map.entry(Stop.SAFE, Constants.elevatorConstants.baseHeight + 2.5),
-      Map.entry(Stop.L1, 26.0 - Constants.elevatorConstants.endEffectorHeight),
-      Map.entry(Stop.L2, 35.5 - Constants.elevatorConstants.endEffectorHeight),
-      Map.entry(Stop.L2_ALGAE, 38.0 - Constants.elevatorConstants.endEffectorHeight),
-      Map.entry(Stop.L3, 52.5 - Constants.elevatorConstants.endEffectorHeight),
-      Map.entry(Stop.L3_ALGAE, 55.0 - Constants.elevatorConstants.endEffectorHeight),
-      Map.entry(Stop.L4, 77.5 - Constants.elevatorConstants.endEffectorHeight)
+        Map.entry(Stop.SAFE, Constants.elevatorConstants.baseHeight + 2.5),
+        Map.entry(Stop.L1, 26.0 - Constants.elevatorConstants.endEffectorHeight),
+        Map.entry(Stop.L2, 35.5 - Constants.elevatorConstants.endEffectorHeight),
+        Map.entry(Stop.L2_ALGAE, 38.0 - Constants.elevatorConstants.endEffectorHeight),
+        Map.entry(Stop.L3, 52.5 - Constants.elevatorConstants.endEffectorHeight),
+        Map.entry(Stop.L3_ALGAE, 55.0 - Constants.elevatorConstants.endEffectorHeight),
+        Map.entry(Stop.L4, 77.5 - Constants.elevatorConstants.endEffectorHeight)
+      ));
+
+    public enum Pivots {
+        Intake,
+        Shoot
+    };
+
+    private final EnumMap<Pivots, Double> pivotsPos = new EnumMap<>(Map.ofEntries(
+      Map.entry(Pivots.Intake, 0.1),
+      Map.entry(Pivots.Shoot, 20.0)
     ));
+
 
     public Command moveTo(Stop stop){
         return Commands.runOnce(() ->  setLevel(elevatorHeights.get(stop)), this);
@@ -143,6 +133,8 @@ public class elevator extends SubsystemBase {
 
     public void setLevel(double level){
         currentLevel = level;
+        elevatorLeft.set(elevatorLeftSpeedReq);
+        elevatorRight.set(elevatorLeftSpeedReq);
         elevatorLeft.getEncoder().setPosition(level);
         elevatorRight.getEncoder().setPosition(level);
    
@@ -151,9 +143,22 @@ public class elevator extends SubsystemBase {
     public double getLevel(){
         return currentLevel;
     }
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("elevator/level", getLevel());
-        SmartDashboard.putNumber("elevator/pivot pos", getPivotPos());
+
+
+    public Command pivotTo(Pivots pivot){
+        return Commands.runOnce(() -> setPivotPos(pivotsPos.get(pivot)));
     }
+
+    public void setPivotPos(double pos){
+        currentPivot = pos;
+        pivotLeft.set(pivotSpeedReq);
+        pivotRight.set(pivotSpeedReq);
+        pivotLeft.getEncoder().setPosition(pos);
+        pivotRight.getEncoder().setPosition(pos);
+    }
+
+    public double getPivotPos(){
+        return currentPivot;
+    }
+
 }
