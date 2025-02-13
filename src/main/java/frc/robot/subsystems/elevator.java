@@ -5,10 +5,11 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkBaseConfig.*;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import frc.robot.Constants;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,9 +19,7 @@ public class elevator extends SubsystemBase {
     private SparkFlex pivotRight;
     private SparkFlex elevatorLeft;
     private SparkFlex elevatorRight;
-    public double elevatorLeftSpeedReq;
-    public double pivotSpeedReq;
-    //private Stop nextStop = Stop.SAFE;
+
     private double currentLevel = 0.0;
     private double currentPivot = 0.0;
 
@@ -32,9 +31,10 @@ public class elevator extends SubsystemBase {
     
     public void intakeSubsystem(){
         SparkFlexConfig config = new SparkFlexConfig();
+        
         pivotLeft = new SparkFlex(Constants.CANConstants.pivotLeftId, MotorType.kBrushless);
         pivotRight = new SparkFlex(Constants.CANConstants.pivotRightId, MotorType.kBrushless);
-        pivotSpeedReq = 0;
+
         config
             .inverted(true)
             .idleMode(IdleMode.kBrake);
@@ -44,14 +44,22 @@ public class elevator extends SubsystemBase {
         config.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pid(1.0, 0.0, 0.0);
+        
         pivotLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        pivotRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        pivotRight.configure(config.follow(Constants.CANConstants.pivotLeftId, true),
+            ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void elevatorLeftSubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
+
         elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
+<<<<<<< HEAD
         elevatorLeftSpeedReq = 0;
+=======
+        elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
+
+>>>>>>> 1d03a1fe3022704a0b758c41cfd6aa68ba045091
         config
                 .inverted(true)
                 .idleMode(IdleMode.kBrake);
@@ -61,7 +69,9 @@ public class elevator extends SubsystemBase {
         config.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(1.0, 0.0, 0.0);
+
         elevatorLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+<<<<<<< HEAD
     }
 
     public void elevatorRightSubsystem(){
@@ -78,23 +88,21 @@ public class elevator extends SubsystemBase {
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(1.0, 0.0, 0.0);
         elevatorRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+=======
+        elevatorRight.configure(config.follow(Constants.CANConstants.elevatorLeftId, true),
+            ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+>>>>>>> 1d03a1fe3022704a0b758c41cfd6aa68ba045091
     }
+
+    public enum Pivots {
+        Intake,
+        Shoot
+    };
 
     private final EnumMap<Pivots, Double> pivotsPos = new EnumMap<>(Map.ofEntries(
       Map.entry(Pivots.Intake, 0.1),
       Map.entry(Pivots.Shoot, 20.0)
     ));
-
-    public enum Stop {
-        // Intake occurs at zero
-        SAFE,
-        L1,
-        L2,
-        L2_ALGAE,
-        L3,
-        L3_ALGAE,
-        L4
-    };
 
     public Command pivotTo(Pivots pivot){
         return Commands.runOnce(() -> setPivotPos(pivotsPos.get(pivot)));
@@ -110,9 +118,15 @@ public class elevator extends SubsystemBase {
         return currentPivot;
     }
 
-    public enum Pivots {
-        Intake,
-        Shoot
+    public enum Stop {
+        // Intake occurs at zero
+        SAFE,
+        L1,
+        L2,
+        L2_ALGAE,
+        L3,
+        L3_ALGAE,
+        L4
     };
 
     private final EnumMap<Stop, Double> elevatorHeights = new EnumMap<>(Map.ofEntries(
@@ -139,5 +153,9 @@ public class elevator extends SubsystemBase {
     public double getLevel(){
         return currentLevel;
     }
-
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("elevator/level", getLevel());
+        SmartDashboard.putNumber("elevator/pivot pos", getPivotPos());
+    }
 }
