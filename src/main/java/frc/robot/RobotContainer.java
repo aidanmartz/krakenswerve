@@ -48,6 +48,9 @@ public class RobotContainer {
     private final JoystickButton bButton = new JoystickButton(driver, XboxController.Button.kB.value);
     private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
     //private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
+    private final JoystickButton startButton = new JoystickButton(driver, XboxController.Button.kStart.value);
+    private final JoystickButton backButton = new JoystickButton(driver, XboxController.Button.kBack.value);
+
     private final JoystickButton leftStick = new JoystickButton(driver, XboxController.Button.kLeftStick.value);
 
     /* Subsystems */
@@ -99,7 +102,12 @@ public class RobotContainer {
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
         leftBumper.whileTrue(elevators.moveTo(Stop.SAFE));
        // .andThen(elevators.pivotTo(Pivots.Intake)));
+
+       startButton.whileTrue(elevators.pivotTo(Pivots.Intake));
+       backButton.whileTrue(elevators.pivotTo(Pivots.Shoot));
+
     }
+
 
 
     /**
