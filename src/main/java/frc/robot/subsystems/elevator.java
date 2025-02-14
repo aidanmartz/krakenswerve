@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -175,8 +175,8 @@ public class elevator extends SubsystemBase {
     public void setLevel(double level){
         currentLevel = level;
         double feedforward = el_Feedforward.calculate(1.0);
-       closedLoopControllerLeft.setReference(level,SparkFlex.ControlType.kPosition,0,el_Feedforward);
-       closedLoopControllerRight.setReference(level,SparkFlex.ControlType.kPosition,0,el_Feedforward);
+       closedLoopControllerLeft.setReference(level,SparkFlex.ControlType.kPosition,ClosedLoopSlot.kSlot0,feedforward);
+       closedLoopControllerRight.setReference(level,SparkFlex.ControlType.kPosition,ClosedLoopSlot.kSlot0,feedforward);
     }
 
     public double getLevel(){
