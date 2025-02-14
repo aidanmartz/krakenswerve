@@ -46,7 +46,7 @@ public class RobotContainer {
     private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
     private final JoystickButton yButton = new JoystickButton(driver, XboxController.Button.kY.value);
     private final JoystickButton bButton = new JoystickButton(driver, XboxController.Button.kB.value);
-    //private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
+    private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
     //private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
     private final JoystickButton leftStick = new JoystickButton(driver, XboxController.Button.kLeftStick.value);
 
@@ -97,23 +97,8 @@ public class RobotContainer {
       //  .andThen(elevators.pivotTo(Pivots.Shoot)));
         bButton.whileTrue(elevators.moveTo(Stop.L4));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        leftStick.whileTrue(elevators.moveTo(Stop.SAFE));
+        leftBumper.whileTrue(elevators.moveTo(Stop.SAFE));
        // .andThen(elevators.pivotTo(Pivots.Intake)));
-        aButton.whileTrue(elevators.moveTo(Stop.L1)
-            .andThen(elevators.pivotTo(Pivots.Shoot)));
-        
-        xButton.whileTrue(elevators.moveTo(Stop.L2)
-            .andThen(elevators.pivotTo(Pivots.Shoot)));
-        
-        yButton.whileTrue(elevators.moveTo(Stop.L3)
-            .andThen(elevators.pivotTo(Pivots.Shoot)));
-        
-        bButton.whileTrue(elevators.moveTo(Stop.L4)
-            .andThen(elevators.pivotTo(Pivots.Shoot)));
-        
-        leftStick.whileTrue(elevators.moveTo(Stop.SAFE)
-            .andThen(elevators.pivotTo(Pivots.Intake)));
-
     }
 
 
