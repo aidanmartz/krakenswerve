@@ -1,4 +1,5 @@
 package frc.robot.subsystems;
+
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ public class elevator extends SubsystemBase {
     private SparkClosedLoopController closedLoopControllerRight;
     private SparkClosedLoopController closedLoopControllerPivotLeft;
     private SparkClosedLoopController closedLoopControllerPivotRight;
-    
+
     public double elevatorLeftSpeedReq;
     public double elevatorRightSpeedReq;
     public double pivotSpeedReq;
@@ -40,13 +41,12 @@ public class elevator extends SubsystemBase {
     private double currentPivot = 0.0;
     private final ElevatorFeedforward el_Feedforward = new ElevatorFeedforward(1.0, 0.0, 0.0);
 
-    public elevator(){
+    public elevator() {
         pivotLeftSubsystem();
         pivotRightSubsystem();
         elevatorLeftSubsystem();
-        elevatorRightubsystem();
+        elevatorRightSubsystem();
     }
-    
 
     public void elevatorLeftSubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
@@ -66,7 +66,7 @@ public class elevator extends SubsystemBase {
         closedLoopControllerLeft = elevatorLeft.getClosedLoopController();
     }
 
-    public void elevatorRightubsystem() {
+    public void elevatorRightSubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
         elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
         elevatorRightSpeedReq = 0.1;
@@ -85,22 +85,19 @@ public class elevator extends SubsystemBase {
         closedLoopControllerRight = elevatorRight.getClosedLoopController();
     }
 
-
-
-
-    public void pivotLeftSubsystem(){
+    public void pivotLeftSubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
         pivotLeft = new SparkFlex(Constants.CANConstants.pivotLeftId, MotorType.kBrushless);
         pivotSpeedReq = 0.05;
         config
-            .inverted(true)
-            .idleMode(IdleMode.kBrake);
+                .inverted(true)
+                .idleMode(IdleMode.kBrake);
         config.encoder
-            .positionConversionFactor(1)
-            .velocityConversionFactor(1);
+                .positionConversionFactor(1)
+                .velocityConversionFactor(1);
         config.closedLoop
-            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .pid(0.05, 0.0, 0.0);
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .pid(0.05, 0.0, 0.0);
         pivotLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         pivotLeft.getEncoder().setPosition(0);
@@ -108,27 +105,25 @@ public class elevator extends SubsystemBase {
         closedLoopControllerPivotLeft = pivotLeft.getClosedLoopController();
     }
 
-    public void pivotRightSubsystem(){
+    public void pivotRightSubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
         pivotRight = new SparkFlex(Constants.CANConstants.pivotRightId, MotorType.kBrushless);
         pivotSpeedReq = 0.05;
         config
-            .inverted(false)
-            .idleMode(IdleMode.kBrake);
+                .inverted(false)
+                .idleMode(IdleMode.kBrake);
         config.encoder
-            .positionConversionFactor(1)
-            .velocityConversionFactor(1);
+                .positionConversionFactor(1)
+                .velocityConversionFactor(1);
         config.closedLoop
-            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .pid(0.05, 0.0, 0.0);
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .pid(0.05, 0.0, 0.0);
         pivotRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         pivotRight.getEncoder().setPosition(0);
 
         closedLoopControllerPivotRight = pivotRight.getClosedLoopController();
     }
-
-
 
     public enum Stop {
         // Intake occurs at zero
@@ -142,17 +137,13 @@ public class elevator extends SubsystemBase {
     };
 
     private final EnumMap<Stop, Double> elevatorHeights = new EnumMap<>(Map.ofEntries(
-        Map.entry(Stop.SAFE, 1.0),
-        Map.entry(Stop.L1, 6.0),
-        Map.entry(Stop.L2, 8.0),
-        Map.entry(Stop.L2_ALGAE, 13.0),
-        Map.entry(Stop.L3, 12.0),
-        Map.entry(Stop.L3_ALGAE,16.0),
-        Map.entry(Stop.L4, 19.5)
-      ));
-
-
-
+            Map.entry(Stop.SAFE, 1.0),
+            Map.entry(Stop.L1, 6.0),
+            Map.entry(Stop.L2, 8.0),
+            Map.entry(Stop.L2_ALGAE, 13.0),
+            Map.entry(Stop.L3, 12.0),
+            Map.entry(Stop.L3_ALGAE, 16.0),
+            Map.entry(Stop.L4, 19.5)));
 
     public enum Pivots {
         Intake,
@@ -160,61 +151,48 @@ public class elevator extends SubsystemBase {
     };
 
     private final EnumMap<Pivots, Double> pivotsPos = new EnumMap<>(Map.ofEntries(
-      Map.entry(Pivots.Intake, 5.0),
-      Map.entry(Pivots.Shoot, -5.0)
-    ));
+            Map.entry(Pivots.Intake, 5.0),
+            Map.entry(Pivots.Shoot, -5.0)));
 
-
-
-
-    public Command moveTo(Stop stop){
-        return Commands.runOnce(() ->  setLevel(elevatorHeights.get(stop)), this);
+    public Command moveTo(Stop stop) {
+        return Commands.runOnce(() -> setLevel(elevatorHeights.get(stop)), this);
     }
 
-
-    public void setLevel(double level){
+    public void setLevel(double level) {
         currentLevel = level;
         double feedforward = el_Feedforward.calculate(1.0);
-       closedLoopControllerLeft.setReference(level,SparkFlex.ControlType.kPosition,ClosedLoopSlot.kSlot0,feedforward);
-       closedLoopControllerRight.setReference(level,SparkFlex.ControlType.kPosition,ClosedLoopSlot.kSlot0,feedforward);
+        closedLoopControllerLeft.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
+                feedforward);
+        closedLoopControllerRight.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
+                feedforward);
     }
 
-    public double getLevel(){
+    public double getLevel() {
         return currentLevel;
     }
 
-
-
-
-
-    public Command pivotTo(Pivots pivot){
+    public Command pivotTo(Pivots pivot) {
         return Commands.runOnce(() -> setPivotPos(pivotsPos.get(pivot)));
     }
 
-    public void setPivotPos(double pos){
+    public void setPivotPos(double pos) {
         currentLevel = pos;
-        closedLoopControllerPivotLeft.setReference(pos,SparkFlex.ControlType.kPosition);
-        closedLoopControllerPivotRight.setReference(pos,SparkFlex.ControlType.kPosition);
+        closedLoopControllerPivotLeft.setReference(pos, SparkFlex.ControlType.kPosition);
+        closedLoopControllerPivotRight.setReference(pos, SparkFlex.ControlType.kPosition);
     }
 
-    public double getPivotPos(){
+    public double getPivotPos() {
         return currentPivot;
     }
 
-
-
-
     @Override
-    public void periodic(){
+    public void periodic() {
         SmartDashboard.putNumber("Elevator Left position", elevatorLeft.getEncoder().getPosition());
         SmartDashboard.putNumber("Elevator Left velocity", elevatorLeft.getEncoder().getVelocity());
 
         SmartDashboard.putNumber("Pivot Right position", pivotRight.getEncoder().getPosition());
         SmartDashboard.putNumber("Pivot Right velocity", pivotRight.getEncoder().getVelocity());
 
-
     }
-
-
 
 }
