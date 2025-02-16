@@ -138,7 +138,7 @@ public class elevator extends SubsystemBase {
     }
 
     public void setPivotPos(double pos) {
-        currentLevel = pos;
+        currentPivot = pos;
         closedLoopControllerPivotLeft.setReference(pos, SparkFlex.ControlType.kPosition);
         closedLoopControllerPivotRight.setReference(pos, SparkFlex.ControlType.kPosition);
     }
