@@ -25,53 +25,38 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 public class elevator extends SubsystemBase {
     private SparkFlex pivotLeft;
     private SparkFlex pivotRight;
-    private SparkFlex elevatorLeft;
-    private SparkFlex elevatorRight;
-
-    private SparkClosedLoopController closedLoopControllerLeft;
-    private SparkClosedLoopController closedLoopControllerRight;
     private SparkClosedLoopController closedLoopControllerPivotLeft;
     private SparkClosedLoopController closedLoopControllerPivotRight;
 
-    public double elevatorLeftSpeedReq;
-    public double elevatorRightSpeedReq;
-    public double pivotSpeedReq;
-    private Stop nextStop = Stop.SAFE;
+    private SparkFlex elevatorLeft;
+    private SparkFlex elevatorRight;
+    private SparkClosedLoopController closedLoopControllerLeft;
+    private SparkClosedLoopController closedLoopControllerRight;
+
+    //unused// private Stop nextStop = Stop.SAFE;
     private double currentLevel = 0.0;
     private double currentPivot = 0.0;
     private final ElevatorFeedforward el_Feedforward = new ElevatorFeedforward(1.0, 0.0, 0.0);
 
     public elevator() {
-        pivotLeftSubsystem();
-        pivotRightSubsystem();
-        elevatorLeftSubsystem();
-        elevatorRightSubsystem();
-    }
-
-    public void elevatorLeftSubsystem() {
-        SparkFlexConfig config = new SparkFlexConfig();
-        elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
-        elevatorLeftSpeedReq = 0.05;
-        config
-                .inverted(true)
-                .idleMode(IdleMode.kBrake);
-        config.encoder
-                .positionConversionFactor(1)
-                .velocityConversionFactor(1);
-        config.closedLoop
-                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                .pid(0.1, 0.0, 0.0);
-        elevatorLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        elevatorLeft.getEncoder().setPosition(0);
+        elevatorLeft = setupElevatorSparkFlex(true, Constants.CANConstants.elevatorLeftId);
         closedLoopControllerLeft = elevatorLeft.getClosedLoopController();
+        
+        elevatorRight = setupElevatorSparkFlex(false, Constants.CANConstants.elevatorRightId);
+        closedLoopControllerRight = elevatorRight.getClosedLoopController();
+
+        pivotLeft = setupPivotSparkFlex(true, Constants.CANConstants.pivotLeftId);
+        closedLoopControllerPivotLeft = pivotLeft.getClosedLoopController();
+
+        pivotRight = setupPivotSparkFlex(false, Constants.CANConstants.pivotRightId);
+        closedLoopControllerPivotRight = pivotRight.getClosedLoopController();
     }
 
-    public void elevatorRightSubsystem() {
+    public SparkFlex setupElevatorSparkFlex(boolean left, int canid) {
         SparkFlexConfig config = new SparkFlexConfig();
-        elevatorRight = new SparkFlex(Constants.CANConstants.elevatorRightId, MotorType.kBrushless);
-        elevatorRightSpeedReq = 0.1;
+        SparkFlex elevatorSpark = new SparkFlex(canid, MotorType.kBrushless);
         config
-                .inverted(false)
+                .inverted(left) // left: inverted=true, right: inverted=false
                 .idleMode(IdleMode.kBrake);
         config.encoder
                 .positionConversionFactor(1)
@@ -79,50 +64,27 @@ public class elevator extends SubsystemBase {
         config.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(0.1, 0.0, 0.0);
-        elevatorRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        elevatorRight.getEncoder().setPosition(0);
-        closedLoopControllerRight = elevatorRight.getClosedLoopController();
+        elevatorSpark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        elevatorSpark.getEncoder().setPosition(0);
+        return elevatorSpark;
     }
 
-    public void pivotLeftSubsystem() {
+    // Maybe could be combined with setupElevatorSparkFlex?
+    public SparkFlex setupPivotSparkFlex(boolean left, int canid) {
         SparkFlexConfig config = new SparkFlexConfig();
-        pivotLeft = new SparkFlex(Constants.CANConstants.pivotLeftId, MotorType.kBrushless);
-        pivotSpeedReq = 0.05;
+        SparkFlex pivotSpark = new SparkFlex(canid, MotorType.kBrushless);
         config
-                .inverted(true)
+                .inverted(left) // left: inverted=true, right: inverted=false
                 .idleMode(IdleMode.kBrake);
         config.encoder
                 .positionConversionFactor(1)
                 .velocityConversionFactor(1);
         config.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                .pid(0.05, 0.0, 0.0);
-        pivotLeft.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        pivotLeft.getEncoder().setPosition(0);
-
-        closedLoopControllerPivotLeft = pivotLeft.getClosedLoopController();
-    }
-
-    public void pivotRightSubsystem() {
-        SparkFlexConfig config = new SparkFlexConfig();
-        pivotRight = new SparkFlex(Constants.CANConstants.pivotRightId, MotorType.kBrushless);
-        pivotSpeedReq = 0.05;
-        config
-                .inverted(false)
-                .idleMode(IdleMode.kBrake);
-        config.encoder
-                .positionConversionFactor(1)
-                .velocityConversionFactor(1);
-        config.closedLoop
-                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                .pid(0.05, 0.0, 0.0);
-        pivotRight.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        pivotRight.getEncoder().setPosition(0);
-
-        closedLoopControllerPivotRight = pivotRight.getClosedLoopController();
+                .pid(0.1, 0.0, 0.0);
+        pivotSpark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        pivotSpark.getEncoder().setPosition(0);
+        return pivotSpark;
     }
 
     public enum Stop {
