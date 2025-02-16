@@ -11,9 +11,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
-import frc.robot.subsystems.*;
-import frc.robot.subsystems.elevator.Pivots;
-import frc.robot.subsystems.elevator.Stop;
+import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Elevator.Stop;
+import frc.robot.subsystems.Pivot;
+import frc.robot.subsystems.Pivot.Pivots;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -51,11 +53,12 @@ public class RobotContainer {
     private final JoystickButton startButton = new JoystickButton(driver, XboxController.Button.kStart.value);
     private final JoystickButton backButton = new JoystickButton(driver, XboxController.Button.kBack.value);
 
-    private final JoystickButton leftStick = new JoystickButton(driver, XboxController.Button.kLeftStick.value);
+    //private final JoystickButton leftStick = new JoystickButton(driver, XboxController.Button.kLeftStick.value);
 
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
-    private final elevator elevators = new elevator();
+    private final Elevator elevators = new Elevator();
+    private final Pivot pivot = new Pivot();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -103,8 +106,8 @@ public class RobotContainer {
         leftBumper.whileTrue(elevators.moveTo(Stop.SAFE));
        // .andThen(elevators.pivotTo(Pivots.Intake)));
 
-       startButton.whileTrue(elevators.pivotTo(Pivots.Intake));
-       backButton.whileTrue(elevators.pivotTo(Pivots.Shoot));
+       startButton.whileTrue(pivot.pivotTo(Pivots.Intake));
+       backButton.whileTrue(pivot.pivotTo(Pivots.Shoot));
 
     }
 
