@@ -59,7 +59,7 @@ public class ElevatorIOSim implements ElevatorIO {
         LinearVelocity currentVelocity = MetersPerSecond.of(sim.getVelocityMetersPerSecond());
 
         Voltage controllerVoltage = Volts.of(controller.calculate(currentHeight.in(Inches), position.in(Inches)));
-        Voltage feedForwardVoltage = ff.calculate(currentVelocity);
+        Voltage feedForwardVoltage = Volts.of(ff.calculate(currentVelocity.in(MetersPerSecond)));
 
         Voltage effort = controllerVoltage.plus(feedForwardVoltage);
 
