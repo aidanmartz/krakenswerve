@@ -12,8 +12,12 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Elevator.Stop;
+
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIOReal;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.Elevator.ElevatorStop; // enum of stops
+
 import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Pivot.Pivots;
 
@@ -57,13 +61,18 @@ public class RobotContainer {
 
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
-    private final Elevator elevators = new Elevator();
+    private final Elevator elevators;
     private final Pivot pivot = new Pivot();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        if (Robot.isReal()) {
+            this.elevators = new Elevator(new ElevatorIOReal());
+        } else {
+            this.elevators = new Elevator(new ElevatorIOSim());
+        }
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -95,15 +104,15 @@ public class RobotContainer {
         
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
 
-        aButton.whileTrue(elevators.moveTo(Stop.L1));
+        aButton.whileTrue(elevators.moveTo(ElevatorStop.L1));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        xButton.whileTrue(elevators.moveTo(Stop.L2));
+        xButton.whileTrue(elevators.moveTo(ElevatorStop.L2));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        yButton.whileTrue(elevators.moveTo(Stop.L3));
+        yButton.whileTrue(elevators.moveTo(ElevatorStop.L3));
       //  .andThen(elevators.pivotTo(Pivots.Shoot)));
-        bButton.whileTrue(elevators.moveTo(Stop.L4));
+        bButton.whileTrue(elevators.moveTo(ElevatorStop.L4));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        leftBumper.whileTrue(elevators.moveTo(Stop.SAFE));
+        leftBumper.whileTrue(elevators.moveTo(ElevatorStop.SAFE));
        // .andThen(elevators.pivotTo(Pivots.Intake)));
 
        startButton.whileTrue(pivot.pivotTo(Pivots.Intake));

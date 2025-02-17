@@ -15,7 +15,7 @@ import edu.wpi.first.units.measure.Voltage;
 
 public class ElevatorIOSim implements ElevatorIO {
 
-    // TODO: Set create some Constants for these
+    // TODO: Create some Constants for these
     private final ElevatorSim sim = new ElevatorSim(
         DCMotor.getKrakenX60(2),
         4, 
