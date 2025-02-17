@@ -37,12 +37,12 @@ public class ElevatorVisualizer {
             )
         );
 
-        Logger.recordOutput("Elevator/Mechanism2d/" + key, this.panel);
+        //BROKEN// Logger.recordOutput("Elevator/Mechanism2d/" + key, this.panel);
     }
 
     public void update(Distance position) {
         elevator.setLength(position.in(Meters));
-        Logger.recordOutput("Elevator/Mechanism2d/" + key, this.panel);
+        //BROKEN// Logger.recordOutput("Elevator/Mechanism2d/" + key, this.panel);
 
         Distance elevatorX = position.times(ElevatorXModifier);
         Distance elevatorZ = position.times(ElevatorZModifier);

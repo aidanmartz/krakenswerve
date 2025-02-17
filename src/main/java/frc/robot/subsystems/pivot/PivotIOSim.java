@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -24,10 +25,12 @@ public class PivotIOSim implements PivotIO{
     private final Angle minimumAngle = Degrees.of(0);
     private final Angle maximumAngle = Degrees.of(360);
     private final Angle startingAngle = Degrees.of(0);
+
+    // TODO: this is surely very very wrong
     private final DCMotorSim sim = new DCMotorSim(
-        1, //plant
+        LinearSystemId.createDCMotorSystem(armMotors, 1, gearing), //plant
         armMotors, // gearbox
-         3 // measurement-std-devs
+         2 // measurement-std-devs
         );
     /*  This is what the training-day demo used for their arm
             SingleJointedArmSim(
@@ -91,12 +94,13 @@ public class PivotIOSim implements PivotIO{
     @Override
     public void runSetpoint(Angle angle) {
         Angle currentAngle = Radians.of(sim.getAngularPositionRad());
+        AngularVelocity currentVelocity = RadiansPerSecond.of(sim.getAngularVelocityRadPerSec());
 
-        Angle setpointAngle = Degrees.of(controller.getSetpoint().position);
+        //Angle setpointAngle = Degrees.of(controller.getSetpoint().position);
         AngularVelocity setpointVelocity = DegreesPerSecond.of(controller.getSetpoint().velocity);
 
         Voltage controllerVoltage = Volts.of(controller.calculate(currentAngle.in(Degrees), angle.in(Degrees)));
-        Voltage feedForwardVoltage = ff.calculateWithVelocities(setpointAngle, setpointVelocity);
+        Voltage feedForwardVoltage = Volts.of(ff.calculateWithVelocities(currentVelocity.in(RadiansPerSecond), setpointVelocity.in(RadiansPerSecond)));
 
         Voltage effort = controllerVoltage.plus(feedForwardVoltage);
 

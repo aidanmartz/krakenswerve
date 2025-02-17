@@ -42,12 +42,12 @@ public class PivotVisualizer {
                 )  
             );
 
-        Logger.recordOutput("Pivot/Mechanism2d/" + key, this.panel);
+        //BROKEN// Logger.recordOutput("Pivot/Mechanism2d/" + key, this.panel);
     }
 
     public void update(Angle position, Distance height) {
         arm.setAngle(position.in(Degrees));
-        Logger.recordOutput("Pivot/Mechanism2d/" + key, this.panel);
+        //BROKEN// Logger.recordOutput("Pivot/Mechanism2d/" + key, this.panel);
 
         Distance elevatorX = height.times(ElevatorXModifier);
         Distance elevatorZ = height.times(ElevatorZModifier);
