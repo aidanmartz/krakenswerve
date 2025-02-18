@@ -18,8 +18,10 @@ import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.Elevator.ElevatorStop; // enum of stops
 
-import frc.robot.subsystems.Pivot;
-import frc.robot.subsystems.Pivot.Pivots;
+import frc.robot.subsystems.pivot.Pivot;
+import frc.robot.subsystems.pivot.Pivot.Pivots;
+import frc.robot.subsystems.pivot.PivotIOReal;
+import frc.robot.subsystems.pivot.PivotIOSim;   
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -62,7 +64,8 @@ public class RobotContainer {
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
     private final Elevator elevators;
-    private final Pivot pivot = new Pivot();
+    private final Pivot pivot;
+   // private final Pivot pivot = new Pivot();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -70,10 +73,12 @@ public class RobotContainer {
     public RobotContainer() {
         if (Robot.isReal()) {
             this.elevators = new Elevator(new ElevatorIOReal());
+            this.pivot = new Pivot(new PivotIOReal());
         } else {
             this.elevators = new Elevator(new ElevatorIOSim());
+            this.pivot = new Pivot(new PivotIOSim());
         }
-
+        
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
 

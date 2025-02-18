@@ -12,7 +12,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 
 import static edu.wpi.first.units.Units.*;
@@ -27,13 +27,7 @@ public class PivotIOSim implements PivotIO{
     private final Angle startingAngle = Degrees.of(0);
 
     // TODO: this is surely very very wrong
-    private final DCMotorSim sim = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(armMotors, 1, gearing), //plant
-        armMotors, // gearbox
-         2 // measurement-std-devs
-        );
-    /*  This is what the training-day demo used for their arm
-            SingleJointedArmSim(
+    private final SingleJointedArmSim sim = new SingleJointedArmSim(
         armMotors,
         gearing,
         SingleJointedArmSim.estimateMOI(
@@ -44,7 +38,7 @@ public class PivotIOSim implements PivotIO{
         minimumAngle.in(Radians),
         maximumAngle.in(Radians),
         true, 
-        startingAngle.in(Radians)*/
+        startingAngle.in(Radians));
     
 
     private final MutVoltage appliedVolts = Volts.mutable(0);
@@ -72,8 +66,8 @@ public class PivotIOSim implements PivotIO{
     public void updateInputs(PivotIOInputs inputs) {
         sim.update(0.02);
         
-        inputs.position.mut_replace(sim.getAngularPositionRad(), Radians);
-        inputs.velocity.mut_replace(sim.getAngularVelocityRadPerSec(), RadiansPerSecond);
+        inputs.position.mut_replace(sim.getAngleRads(), Radians);
+        inputs.velocity.mut_replace(sim.getVelocityRadPerSec(), RadiansPerSecond);
 
         inputs.appliedVoltsLeader.mut_replace(appliedVolts);
         inputs.appliedVoltsFollower.mut_replace(appliedVolts);
@@ -93,8 +87,8 @@ public class PivotIOSim implements PivotIO{
 
     @Override
     public void runSetpoint(Angle angle) {
-        Angle currentAngle = Radians.of(sim.getAngularPositionRad());
-        AngularVelocity currentVelocity = RadiansPerSecond.of(sim.getAngularVelocityRadPerSec());
+        Angle currentAngle = Radians.of(sim.getAngleRads());
+        AngularVelocity currentVelocity = RadiansPerSecond.of(sim.getVelocityRadPerSec());
 
         //Angle setpointAngle = Degrees.of(controller.getSetpoint().position);
         AngularVelocity setpointVelocity = DegreesPerSecond.of(controller.getSetpoint().velocity);
@@ -126,7 +120,7 @@ public class PivotIOSim implements PivotIO{
 
     @Override
     public void stop() {
-        Angle currentAngle = Radians.of(sim.getAngularPositionRad());
+        Angle currentAngle = Radians.of(sim.getAngleRads());
         controller.reset(currentAngle.in(Degrees));
         runVolts(Volts.of(0));
     }
