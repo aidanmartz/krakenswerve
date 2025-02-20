@@ -13,7 +13,6 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.math.system.plant.LinearSystemId;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -38,9 +37,9 @@ public class PivotIOSim implements PivotIO{
         minimumAngle.in(Radians),
         maximumAngle.in(Radians),
         true, 
-        startingAngle.in(Radians));
+        startingAngle.in(Radians)
+    );
     
-
     private final MutVoltage appliedVolts = Volts.mutable(0);
     private final double kS = 0.0;
     private final double kG = 0.126;
@@ -64,7 +63,7 @@ public class PivotIOSim implements PivotIO{
 
     @Override
     public void updateInputs(PivotIOInputs inputs) {
-        sim.update(0.02);
+        sim.update(0.02); // 20ms update
         
         inputs.position.mut_replace(sim.getAngleRads(), Radians);
         inputs.velocity.mut_replace(sim.getVelocityRadPerSec(), RadiansPerSecond);

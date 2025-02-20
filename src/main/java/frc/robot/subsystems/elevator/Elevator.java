@@ -39,27 +39,7 @@ public class Elevator extends SubsystemBase {
         goalVisualizer = new ElevatorVisualizer("Goal", Color.kBlue);
     }
 
-    @Override
-    public void periodic() {
-        super.periodic();
-
-        this.io.updateInputs(inputs);
-        Logger.processInputs("Elevator", inputs);
-
-        measuredVisualizer.update(this.inputs.position);
-        goalVisualizer.update(this.setpoint);
-
-        if(edu.wpi.first.wpilibj.RobotState.isDisabled()) {
-            this.io.stop();
-        } else {
-            this.io.runSetpoint(this.setpoint);
-        }
-
-        actual.updateElevatorPosition(this.inputs.position);
-        target.updateElevatorPosition(this.inputs.setpointPosition);
-        goal.updateElevatorPosition(this.setpoint);
-    }
-
+    
     public enum ElevatorStop {
         // Intake occurs at zero
         SAFE,
@@ -96,4 +76,26 @@ public class Elevator extends SubsystemBase {
     public Command waitForLessThanPosition(Distance position) {
         return Commands.waitUntil(() -> this.inputs.position.lt(position));
     }
+
+    @Override
+    public void periodic() {
+        super.periodic();
+
+        this.io.updateInputs(inputs);
+        Logger.processInputs("Elevator", inputs);
+
+        measuredVisualizer.update(this.inputs.position);
+        goalVisualizer.update(this.setpoint);
+
+        if(edu.wpi.first.wpilibj.RobotState.isDisabled()) {
+            this.io.stop();
+        } else {
+            this.io.runSetpoint(this.setpoint);
+        }
+
+        actual.updateElevatorPosition(this.inputs.position);
+        target.updateElevatorPosition(this.inputs.setpointPosition);
+        goal.updateElevatorPosition(this.setpoint);
+    }
+
 }

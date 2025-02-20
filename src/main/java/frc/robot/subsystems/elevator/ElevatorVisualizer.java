@@ -24,19 +24,17 @@ public class ElevatorVisualizer {
 
     public ElevatorVisualizer(String key, Color color) {
         this.key = key;
-
         this.panel = new Mechanism2d(Inches.of(100).in(Meters), Inches.of(100).in(Meters), new Color8Bit(Color.kWhite));
         this.root = panel.getRoot("elevator", Inches.of(7.35).in(Meters), Inches.of(10).in(Meters));
         this.elevator = root.append(
             new MechanismLigament2d(
                 "Elevator",
                 Inches.of(0).in(Meters),
-                45,
+                90,
                 10,
                 new Color8Bit(color)
             )
         );
-
         //BROKEN// Logger.recordOutput("Elevator/Mechanism2d/" + key, this.panel);
     }
 
