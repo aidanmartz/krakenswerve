@@ -51,7 +51,7 @@ public class elevator extends SubsystemBase {
     public void elevatorLeftSubsystem() {
         SparkFlexConfig config = new SparkFlexConfig();
         elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
-        elevatorLeftSpeedReq = 0.05;
+        elevatorLeftSpeedReq = 0.01;  //please push
         config
                 .inverted(true)
                 .idleMode(IdleMode.kBrake);
