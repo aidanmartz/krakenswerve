@@ -19,16 +19,16 @@ public class ElevatorIOSim implements ElevatorIO {
         DCMotor.getNeoVortex(2),
         4, 
         Pounds.of(35).in(Kilograms), // carriage-mass (fixed, doubled second stage)
-        Inches.of(1.5).in(Meters), // drum radius (need to figure out conversion since we use chain)
+        Inches.of(1.75).in(Meters), // sprocket radius 0.875 est
         Inches.of(0).in(Meters), // minheight
-        Inches.of(52).in(Meters), // maxheight
+        Inches.of(90).in(Meters), // maxheight
         true, 
-        Inches.of(0).in(Meters)
+        Inches.of(0).in(Meters) // starting height
     );
 
     private final MutVoltage appliedVolts = Volts.mutable(0);
-    private final PIDController controller = new PIDController(0, 0, 0);
-    private final ElevatorFeedforward ff = new ElevatorFeedforward(0, 10, 0);
+    private final PIDController controller = new PIDController(100, 0, 0);
+    private final ElevatorFeedforward ff = new ElevatorFeedforward(0, 1, 0);
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {

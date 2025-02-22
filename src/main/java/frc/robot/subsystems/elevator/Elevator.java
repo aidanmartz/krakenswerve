@@ -30,7 +30,7 @@ public class Elevator extends SubsystemBase {
 
     public Elevator(ElevatorIO io) {
         this.io = io;
-        this.io.setPID(0.3, 0, 0);
+        this.io.setPID(2.5, 0, 0.2);
         this.actual = RobotState.getMeasuredInstance();
         this.target = RobotState.getDesiredInstance();
         this.goal = RobotState.getGoalInstance();
@@ -54,11 +54,11 @@ public class Elevator extends SubsystemBase {
     private final EnumMap<ElevatorStop, Double> elevatorHeights = new EnumMap<>(Map.ofEntries(
             Map.entry(ElevatorStop.SAFE, 1.0),
             Map.entry(ElevatorStop.L1, 6.0),
-            Map.entry(ElevatorStop.L2, 8.0),
+            Map.entry(ElevatorStop.L2, 11.0),
             Map.entry(ElevatorStop.L2_ALGAE, 13.0),
-            Map.entry(ElevatorStop.L3, 12.0),
-            Map.entry(ElevatorStop.L3_ALGAE, 16.0),
-            Map.entry(ElevatorStop.L4, 19.5)));
+            Map.entry(ElevatorStop.L3, 16.0),
+            Map.entry(ElevatorStop.L3_ALGAE, 18.0),
+            Map.entry(ElevatorStop.L4, 19.5))); //19.5
 
 
     public Command moveTo(ElevatorStop stop) {

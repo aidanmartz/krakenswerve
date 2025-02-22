@@ -19,8 +19,8 @@ public class ElevatorVisualizer {
     private final MechanismRoot2d root;
     private final MechanismLigament2d elevator;
 
-    private static final double ElevatorXModifier = -Math.cos(Degrees.of(45).in(Radians));
-    private static final double ElevatorZModifier = Math.sin(Degrees.of(45).in(Radians));
+    private static final double ElevatorXModifier = -Math.cos(Degrees.of(90).in(Radians));
+    private static final double ElevatorZModifier = Math.sin(Degrees.of(90).in(Radians));
 
     public ElevatorVisualizer(String key, Color color) {
         this.key = key;
