@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 //import edu.wpi.first.wpilibj2.command.WaitCommand;
 //import edu.wpi.first.math.controller.ElevatorFeedforward;
 
-public class Pivot extends SubsystemBase {
+public class dontuse_Pivot extends SubsystemBase {
     private SparkFlex pivotLeft;
     private SparkFlex pivotRight;
     private SparkClosedLoopController closedLoopControllerPivotLeft;
@@ -30,7 +30,7 @@ public class Pivot extends SubsystemBase {
 
     private double currentPivot = 0.0;
 
-    public Pivot() {
+    public dontuse_Pivot() {
         pivotLeft = setupPivotSparkFlex(true, Constants.CANConstants.pivotLeftId);
         closedLoopControllerPivotLeft = pivotLeft.getClosedLoopController();
 

@@ -1,7 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MutCurrent;
@@ -13,9 +11,8 @@ import edu.wpi.first.units.measure.Voltage;
 
 import static edu.wpi.first.units.Units.*;
 
-
 public interface ElevatorIO {
-    //@AutoLog
+    // Removed Autolog because it was finicky so implemented manually.
     class ElevatorIOInputs {
         public boolean leaderMotorConnected = true;
         public boolean followerMotorConnected = true;

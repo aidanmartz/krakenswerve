@@ -1,7 +1,5 @@
 package frc.robot.subsystems.pivot;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngle;
@@ -14,7 +12,7 @@ import edu.wpi.first.units.measure.Voltage;
 import static edu.wpi.first.units.Units.*;
 
 public interface PivotIO {
-    //@AutoLog
+    // Removed Autolog because it was finicky so implemented manually.
     class PivotIOInputs {
         public boolean leaderMotorConnected = true;
         public boolean followerMotorConnected = true;

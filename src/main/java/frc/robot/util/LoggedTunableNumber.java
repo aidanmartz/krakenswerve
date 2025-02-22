@@ -1,3 +1,4 @@
+
 // Copyright (c) 2024 FRC 6328
 // http://github.com/Mechanical-Advantage
 //
@@ -12,11 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
- * Class for a tunable number. Gets value from dashboard in tuning mode, returns default if not or
- * value not in dashboard.
+ * Class for a tunable number. Gets value from dashboard in tuning mode, returns
+ * default if not or value not in dashboard.
  */
 public class LoggedTunableNumber implements DoubleSupplier {
   private static final String tableKey = "TunableNumbers";
@@ -25,7 +26,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
   private final String key;
   private boolean hasDefault = false;
   private double defaultValue;
-  private LoggedDashboardNumber dashboardNumber;
+  private LoggedNetworkNumber dashboardNumber;
   private Map<Integer, Double> lastHasChangedValues = new HashMap<>();
 
   /**
@@ -58,7 +59,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
       hasDefault = true;
       this.defaultValue = defaultValue;
       if (tuningMode) {
-        dashboardNumber = new LoggedDashboardNumber(key, defaultValue);
+        dashboardNumber = new LoggedNetworkNumber(key, defaultValue);
       }
     }
   }
@@ -79,10 +80,11 @@ public class LoggedTunableNumber implements DoubleSupplier {
   /**
    * Checks whether the number has changed since our last check
    *
-   * @param id Unique identifier for the caller to avoid conflicts when shared between multiple
-   *     objects. Recommended approach is to pass the result of "hashCode()"
-   * @return True if the number has changed since the last time this method was called, false
-   *     otherwise.
+   * @param id Unique identifier for the caller to avoid conflicts when shared
+   *           between multiple
+   *           objects. Recommended approach is to pass the result of "hashCode()"
+   * @return True if the number has changed since the last time this method was
+   *         called, false otherwise.
    */
   public boolean hasChanged(int id) {
     double currentValue = get();
@@ -98,10 +100,13 @@ public class LoggedTunableNumber implements DoubleSupplier {
   /**
    * Runs action if any of the tunableNumbers have changed
    *
-   * @param id Unique identifier for the caller to avoid conflicts when shared between multiple *
-   *     objects. Recommended approach is to pass the result of "hashCode()"
-   * @param action Callback to run when any of the tunable numbers have changed. Access tunable
-   *     numbers in order inputted in method
+   * @param id             Unique identifier for the caller to avoid conflicts
+   *                       when shared between multiple *
+   *                       objects. Recommended approach is to pass the result of
+   *                       "hashCode()"
+   * @param action         Callback to run when any of the tunable numbers have
+   *                       changed. Access tunable
+   *                       numbers in order inputted in method
    * @param tunableNumbers All tunable numbers to check
    */
   public static void ifChanged(
