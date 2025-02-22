@@ -15,7 +15,7 @@ import static edu.wpi.first.units.Units.*;
 
 
 public interface ElevatorIO {
-    @AutoLog
+    //@AutoLog
     class ElevatorIOInputs {
         public boolean leaderMotorConnected = true;
         public boolean followerMotorConnected = true;

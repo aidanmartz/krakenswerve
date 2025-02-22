@@ -17,11 +17,11 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import static edu.wpi.first.units.Units.*;
 
 public class PivotIOSim implements PivotIO{
-    private final DCMotor armMotors = DCMotor.getKrakenX60(2);
-    private final double gearing = 75;
-    private final Distance armLength = Inches.of(24.719);
-    private final Mass armWeight = Pounds.of(11);
-    private final Angle minimumAngle = Degrees.of(0);
+    private final DCMotor armMotors = DCMotor.getNeoVortex(2);
+    private final double gearing = 22.5;
+    private final Distance armLength = Inches.of(5);
+    private final Mass armWeight = Pounds.of(6);
+    private final Angle minimumAngle = Degrees.of(-360);
     private final Angle maximumAngle = Degrees.of(360);
     private final Angle startingAngle = Degrees.of(0);
 
@@ -48,8 +48,8 @@ public class PivotIOSim implements PivotIO{
     private final double kP = 1.0;
     private final double kI = 0.0;
     private final double kD = 0.0;
-    private final AngularVelocity maxVelocity = DegreesPerSecond.of(360);
-    private final AngularAcceleration maxAcceleration = DegreesPerSecondPerSecond.of(360); 
+    private final AngularVelocity maxVelocity = DegreesPerSecond.of(3600);
+    private final AngularAcceleration maxAcceleration = DegreesPerSecondPerSecond.of(3600); 
     private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kG, kV, kA);
     private final ProfiledPIDController controller = new ProfiledPIDController(
         kP, 

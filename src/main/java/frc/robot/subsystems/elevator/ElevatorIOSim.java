@@ -16,19 +16,19 @@ public class ElevatorIOSim implements ElevatorIO {
 
     // TODO: Create some Constants for these
     private final ElevatorSim sim = new ElevatorSim(
-        DCMotor.getKrakenX60(2),
+        DCMotor.getNeoVortex(2),
         4, 
-        Pounds.of(9.8).in(Kilograms), // carriage-mass
-        Inches.of(2).in(Meters), // drum radius
+        Pounds.of(35).in(Kilograms), // carriage-mass (fixed, doubled second stage)
+        Inches.of(1.5).in(Meters), // drum radius (need to figure out conversion since we use chain)
         Inches.of(0).in(Meters), // minheight
         Inches.of(52).in(Meters), // maxheight
-        false, 
+        true, 
         Inches.of(0).in(Meters)
     );
 
     private final MutVoltage appliedVolts = Volts.mutable(0);
     private final PIDController controller = new PIDController(0, 0, 0);
-    private final ElevatorFeedforward ff = new ElevatorFeedforward(0, 0, 0);
+    private final ElevatorFeedforward ff = new ElevatorFeedforward(0, 10, 0);
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {

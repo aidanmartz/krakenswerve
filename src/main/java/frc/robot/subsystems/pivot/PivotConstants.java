@@ -2,7 +2,7 @@ package frc.robot.subsystems.pivot;
 
 public class PivotConstants {
 
-    public static final PivotGains SimGains = new PivotGains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    public static final PivotGains SimGains = new PivotGains(10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     public static final PivotGains TalonFXGains = new PivotGains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     
     record PivotGains(double kP, double kI, double kD, double kS, double kG, double kV, double kA) {

@@ -14,7 +14,7 @@ import edu.wpi.first.units.measure.Voltage;
 import static edu.wpi.first.units.Units.*;
 
 public interface PivotIO {
-    @AutoLog
+    //@AutoLog
     class PivotIOInputs {
         public boolean leaderMotorConnected = true;
         public boolean followerMotorConnected = true;
