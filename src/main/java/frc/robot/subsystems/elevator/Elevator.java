@@ -5,23 +5,22 @@ import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkFlex;
-
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.subsystems.elevator.ElevatorIOReal;
+import frc.robot.util.LoggedTunableNumber;
 
 import static edu.wpi.first.units.Units.*;
 
 public class Elevator extends SubsystemBase {
+
+    // PID values
+    private static final LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/Gains/kP", 2.5);
+    private static final LoggedTunableNumber kI = new LoggedTunableNumber("Elevator/Gains/kI", 0.0);
+    private static final LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/Gains/kD", 0.2);
 
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
@@ -38,7 +37,8 @@ public class Elevator extends SubsystemBase {
 
     public Elevator(ElevatorIO io) {
         this.io = io;
-        this.io.setPID(2.5, 0, 0.2);
+        this.io.setPID(kP.get(), kI.get(), kD.get());
+        
         this.actual = RobotState.getMeasuredInstance();
         this.target = RobotState.getDesiredInstance();
         this.goal = RobotState.getGoalInstance();
@@ -49,8 +49,7 @@ public class Elevator extends SubsystemBase {
 
     
     public enum ElevatorStop {
-        // Intake occurs at zero
-        SAFE,
+        SAFE, // Intake occurs at "zero"
         L1,
         L2,
         L2_ALGAE,
@@ -59,28 +58,26 @@ public class Elevator extends SubsystemBase {
         L4
     };
 
-    private final EnumMap<ElevatorStop, Double> elevatorHeights = new EnumMap<>(Map.ofEntries(
-            Map.entry(ElevatorStop.SAFE, 0.1),
-            Map.entry(ElevatorStop.L1, 3.0),
-            Map.entry(ElevatorStop.L2, 6.0),
-            Map.entry(ElevatorStop.L2_ALGAE, 13.0),
-            Map.entry(ElevatorStop.L3, 11.5),
-            Map.entry(ElevatorStop.L3_ALGAE, 18.0),
-            Map.entry(ElevatorStop.L4, 21.0))); //19.5
+    private final EnumMap<ElevatorStop, Distance> elevatorHeights = new EnumMap<>(Map.ofEntries(
+            Map.entry(ElevatorStop.SAFE, Inches.of(0.1)),
+            Map.entry(ElevatorStop.L1, Inches.of(3.0)),
+            Map.entry(ElevatorStop.L2, Inches.of(6.0)),
+            Map.entry(ElevatorStop.L2_ALGAE, Inches.of(13.0)),
+            Map.entry(ElevatorStop.L3, Inches.of(11.5)),
+            Map.entry(ElevatorStop.L3_ALGAE, Inches.of(18.0)),
+            Map.entry(ElevatorStop.L4, Inches.of(21.0))  //19.5
+        ));
 
 
     public Command moveTo(ElevatorStop stop) {
-       Distance level = Inches.of(elevatorHeights.get(stop));
-       if(this.actual.getElevatorPosition().lt(level)) {
-        this.io.setPID(2.5, 0, 0);
-           return Commands.runOnce(() -> this.setpoint = level);
-    }  else if(this.actual.getElevatorPosition().gt(level)) {
-        this.io.setPID(2.5, 0, 0);
-        return Commands.runOnce(() -> this.setpoint = level);
-    } else {
+        Distance level = elevatorHeights.get(stop);
+        if (this.actual.getElevatorPosition().lt(level)) {
+            this.io.setPID(2.5, 0, 0);
+        } else if (this.actual.getElevatorPosition().gt(level)) {
+            this.io.setPID(2.5, 0, 0);
+        }
         return Commands.runOnce(() -> this.setpoint = level);
     }
-}
 
     public Command setPosition(Distance position) {
         return runOnce(() -> this.setpoint = position);

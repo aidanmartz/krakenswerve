@@ -16,7 +16,8 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 import static edu.wpi.first.units.Units.*;
 
-public class PivotIOSim implements PivotIO{
+public class PivotIOSim implements PivotIO {
+    
     private final DCMotor armMotors = DCMotor.getNeoVortex(2);
     private final double gearing = 22.5;
     private final Distance armLength = Inches.of(5);
@@ -25,7 +26,6 @@ public class PivotIOSim implements PivotIO{
     private final Angle maximumAngle = Degrees.of(360);
     private final Angle startingAngle = Degrees.of(0);
 
-    // TODO: this is surely very very wrong
     private final SingleJointedArmSim sim = new SingleJointedArmSim(
         armMotors,
         gearing,
@@ -41,13 +41,16 @@ public class PivotIOSim implements PivotIO{
     );
     
     private final MutVoltage appliedVolts = Volts.mutable(0);
+
+    private final double kP = 1.0;
+    private final double kI = 0.0;
+    private final double kD = 0.0;
+
     private final double kS = 0.0;
     private final double kG = 0.126;
     private final double kV = 1.3;
     private final double kA = 5;
-    private final double kP = 1.0;
-    private final double kI = 0.0;
-    private final double kD = 0.0;
+
     private final AngularVelocity maxVelocity = DegreesPerSecond.of(3600);
     private final AngularAcceleration maxAcceleration = DegreesPerSecondPerSecond.of(3600); 
     private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kG, kV, kA);
