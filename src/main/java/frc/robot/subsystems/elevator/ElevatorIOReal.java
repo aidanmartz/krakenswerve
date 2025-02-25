@@ -32,13 +32,13 @@ public class ElevatorIOReal implements ElevatorIO {
     private SparkFlex elevatorRight;
     private SparkClosedLoopController closedLoopControllerLeft;
     private SparkClosedLoopController closedLoopControllerRight;
-
+    
     //unused// private Stop nextStop = Stop.SAFE;
     private MutDistance currentPosition = Inches.mutable(0.0);
-    private final ElevatorFeedforward el_Feedforward = new ElevatorFeedforward(1.0, 0.0, 0.0);
-
+    private ElevatorFeedforward el_Feedforward = new ElevatorFeedforward(1.0, 0.0, 0.0);
+    
     public ElevatorIOReal() {
-
+        
         elevatorLeft = setupElevatorSparkFlex(true, Constants.CANConstants.elevatorLeftId);
         closedLoopControllerLeft = elevatorLeft.getClosedLoopController();
         
@@ -50,19 +50,19 @@ public class ElevatorIOReal implements ElevatorIO {
         SparkFlexConfig config = new SparkFlexConfig();
         SparkFlex elevatorSpark = new SparkFlex(canid, MotorType.kBrushless);
         config
-                .inverted(left) // left: inverted=true, right: inverted=false
+        .inverted(left) // left: inverted=true, right: inverted=false
                 .idleMode(IdleMode.kBrake);
-        config.encoder
+                config.encoder
                 .positionConversionFactor(1)
                 .velocityConversionFactor(1);
-        config.closedLoop
+                config.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(0.1, 0.0, 0.0);
-        elevatorSpark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        elevatorSpark.getEncoder().setPosition(0);
+                elevatorSpark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+                elevatorSpark.getEncoder().setPosition(0);
         return elevatorSpark;
     }
-
+    
     @Override
     public void runSetpoint(Distance position) {
         currentPosition.mut_replace(position); // probably unneeded since we are capturing inputs elsewhere?
@@ -70,20 +70,24 @@ public class ElevatorIOReal implements ElevatorIO {
         double feedforward = el_Feedforward.calculate(1.0);
         closedLoopControllerLeft.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
                 feedforward);
-        closedLoopControllerRight.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
+                closedLoopControllerRight.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
                 feedforward);
     }
 
+    @Override
+    public void setFF(double kS, double kG, double kV, double kA) {
+        el_Feedforward = new ElevatorFeedforward( kS, kG, kV, kA);
+    }
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         //inputs.position.mut_replace(sim.getPositionMeters(), Meters); // ????
         //inputs.velocity.mut_replace(sim.getVelocityMetersPerSecond(), MetersPerSecond); // ????
         //inputs.setpointPosition.mut_replace(controller.getSetpoint(), Meters); // ????
         //inputs.setpointVelocity.mut_replace(0, MetersPerSecond); // ????
-
+        
         inputs.position.mut_replace(elevatorLeft.getAbsoluteEncoder().getPosition(), Meters);
         inputs.velocity.mut_replace(elevatorLeft.getAbsoluteEncoder().getVelocity(), MetersPerSecond);
-
+        
         inputs.appliedVoltsLeader.mut_replace(elevatorLeft.getBusVoltage(), Volts);
         inputs.appliedVoltsFollower.mut_replace(elevatorRight.getBusVoltage(), Volts);
 
@@ -95,23 +99,23 @@ public class ElevatorIOReal implements ElevatorIO {
 
         inputs.temperatureLeader.mut_replace(elevatorLeft.getMotorTemperature(), Celsius);
         inputs.temperatureFollower.mut_replace(elevatorRight.getMotorTemperature(), Celsius);
-
+        
     }
 
     public void runVolts(Voltage volts) {
         elevatorLeft.setVoltage(volts);
         elevatorRight.setVoltage(volts);
     }
-/*
+    /*
     public void runCurrent(Current current) {}
     public void setBrakeMode(boolean enabled) {}
     public void setPID(double p, double i, double d) {}
-*/
-
+    */
+    
     public void stop() {
         runVolts(Volts.of(0));
     }
-
+    
     public void periodic() {
         SmartDashboard.putNumber("Elevator Left position", elevatorLeft.getEncoder().getPosition());
         SmartDashboard.putNumber("Elevator Left velocity", elevatorLeft.getEncoder().getVelocity());
