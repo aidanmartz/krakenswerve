@@ -72,9 +72,9 @@ public class Elevator extends SubsystemBase {
     public Command moveTo(ElevatorStop stop) {
         Distance level = elevatorHeights.get(stop);
         if (this.actual.getElevatorPosition().lt(level)) {
-            this.io.setPID(2.5, 0, 0);
+            this.io.setFF(0.4, 0, 0, 0);;
         } else if (this.actual.getElevatorPosition().gt(level)) {
-            this.io.setPID(2.5, 0, 0);
+            this.io.setFF(0.1, 0, 0, 0);;
         }
         return Commands.runOnce(() -> this.setpoint = level);
     }
