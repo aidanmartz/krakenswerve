@@ -22,6 +22,13 @@ public class Elevator extends SubsystemBase {
     private static final LoggedTunableNumber kI = new LoggedTunableNumber("Elevator/Gains/kI", 0.0);
     private static final LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/Gains/kD", 0.2);
 
+    private static final LoggedTunableNumber kS = new LoggedTunableNumber("Pivot/Gains/kS", 0.0);
+    private static final LoggedTunableNumber kV = new LoggedTunableNumber("Pivot/Gains/kV", 0.0);
+    private static final LoggedTunableNumber kA = new LoggedTunableNumber("Pivot/Gains/kA", 1.45);
+    private static final LoggedTunableNumber kG = new LoggedTunableNumber("Pivot/Gains/kG", 0.0);
+
+    
+
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
@@ -38,6 +45,7 @@ public class Elevator extends SubsystemBase {
     public Elevator(ElevatorIO io) {
         this.io = io;
         this.io.setPID(kP.get(), kI.get(), kD.get());
+        this.io.setFF(kS.get(), kG.get(), kV.get(), kA.get());
         
         this.actual = RobotState.getMeasuredInstance();
         this.target = RobotState.getDesiredInstance();
@@ -72,9 +80,16 @@ public class Elevator extends SubsystemBase {
     public Command moveTo(ElevatorStop stop) {
         Distance level = elevatorHeights.get(stop);
         if (this.actual.getElevatorPosition().lt(level)) {
-            this.io.setFF(0.4, 0, 0, 0);;
+            return Commands.runOnce(() -> {
+                this.io.setFF(0.0, 0.0, 0.0, 0.0);
+
+                this.setpoint = level;
+            });
         } else if (this.actual.getElevatorPosition().gt(level)) {
-            this.io.setFF(0.1, 0, 0, 0);;
+            return Commands.runOnce(() -> {
+                this.io.setFF(0.0, 10.0, 0.0, 0.0);
+                this.setpoint = level;
+            });
         }
         return Commands.runOnce(() -> this.setpoint = level);
     }
