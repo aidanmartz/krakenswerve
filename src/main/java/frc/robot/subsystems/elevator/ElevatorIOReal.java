@@ -22,6 +22,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -110,5 +111,13 @@ public class ElevatorIOReal implements ElevatorIO {
     public void stop() {
         runVolts(Volts.of(0));
     }
+
+    public void periodic() {
+        SmartDashboard.putNumber("Elevator Left position", elevatorLeft.getEncoder().getPosition());
+        SmartDashboard.putNumber("Elevator Left velocity", elevatorLeft.getEncoder().getVelocity());
+    }
+
+
+
 
 }

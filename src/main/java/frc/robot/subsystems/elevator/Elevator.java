@@ -5,12 +5,19 @@ import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkFlex;
+
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
+import frc.robot.subsystems.elevator.ElevatorIOReal;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -27,6 +34,7 @@ public class Elevator extends SubsystemBase {
     private final RobotState actual;
     private final RobotState target;
     private final RobotState goal;
+
 
     public Elevator(ElevatorIO io) {
         this.io = io;
@@ -52,18 +60,27 @@ public class Elevator extends SubsystemBase {
     };
 
     private final EnumMap<ElevatorStop, Double> elevatorHeights = new EnumMap<>(Map.ofEntries(
-            Map.entry(ElevatorStop.SAFE, 1.0),
-            Map.entry(ElevatorStop.L1, 6.0),
-            Map.entry(ElevatorStop.L2, 11.0),
+            Map.entry(ElevatorStop.SAFE, 0.1),
+            Map.entry(ElevatorStop.L1, 3.0),
+            Map.entry(ElevatorStop.L2, 6.0),
             Map.entry(ElevatorStop.L2_ALGAE, 13.0),
-            Map.entry(ElevatorStop.L3, 16.0),
+            Map.entry(ElevatorStop.L3, 11.5),
             Map.entry(ElevatorStop.L3_ALGAE, 18.0),
-            Map.entry(ElevatorStop.L4, 19.5))); //19.5
+            Map.entry(ElevatorStop.L4, 21.0))); //19.5
 
 
     public Command moveTo(ElevatorStop stop) {
-        return Commands.runOnce(() -> this.setpoint = Inches.of(elevatorHeights.get(stop)));
+       Distance level = Inches.of(elevatorHeights.get(stop));
+       if(this.actual.getElevatorPosition().lt(level)) {
+        this.io.setPID(2.5, 0, 0);
+           return Commands.runOnce(() -> this.setpoint = level);
+    }  else if(this.actual.getElevatorPosition().gt(level)) {
+        this.io.setPID(2.5, 0, 0);
+        return Commands.runOnce(() -> this.setpoint = level);
+    } else {
+        return Commands.runOnce(() -> this.setpoint = level);
     }
+}
 
     public Command setPosition(Distance position) {
         return runOnce(() -> this.setpoint = position);

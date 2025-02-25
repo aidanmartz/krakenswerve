@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,6 +36,7 @@ public class Pivot extends SubsystemBase {
     private final PivotVisualizer measuredVisualizer;
     private final PivotVisualizer setpointVisualizer;
     private final PivotVisualizer goalVisualizer;
+
     
     private Angle setpoint = Degrees.of(0.0);
 //    private double currentPivot = 0.0;
@@ -46,7 +48,7 @@ public class Pivot extends SubsystemBase {
 
     public Pivot(PivotIO io) {
         this.io = io;
-        this.io.setPID(0.3, 0, 0);
+        this.io.setPID(0.15, 0, 0);
   //      this.io.setPID(kP.get(), kI.get(), kD.get());
   //      this.io.setFF(kS.get(), kG.get(), kV.get(), kA.get());
         this.actual = RobotState.getMeasuredInstance();
@@ -65,8 +67,8 @@ public class Pivot extends SubsystemBase {
     };
 
     private final EnumMap<Pivots, Angle> pivotsPos = new EnumMap<>(Map.ofEntries(
-            Map.entry(Pivots.Intake, Degrees.of(180.0)),
-            Map.entry(Pivots.Shoot, Degrees.of(0.0))));
+            Map.entry(Pivots.Intake, Degrees.of(7.5)),
+            Map.entry(Pivots.Shoot, Degrees.of(18.0))));
 
     
     public Command pivotTo(Pivots pivot) {

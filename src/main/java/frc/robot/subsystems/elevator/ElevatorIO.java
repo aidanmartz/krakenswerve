@@ -18,7 +18,7 @@ public interface ElevatorIO {
         public boolean followerMotorConnected = true;
 
         public MutDistance position = Inches.mutable(0);
-        public MutLinearVelocity velocity = InchesPerSecond.mutable(0);
+        public MutLinearVelocity velocity = InchesPerSecond.mutable(0.0);
 
         public MutVoltage appliedVoltsLeader = Volts.mutable(0);
         public MutVoltage appliedVoltsFollower = Volts.mutable(0);
@@ -33,7 +33,7 @@ public interface ElevatorIO {
         public MutTemperature temperatureFollower = Celsius.mutable(0);
 
         public MutDistance setpointPosition = Inches.mutable(0);
-        public MutLinearVelocity setpointVelocity = InchesPerSecond.mutable(0);
+        public MutLinearVelocity setpointVelocity = InchesPerSecond.mutable(0.0);
     }
 
     void updateInputs(ElevatorIOInputs inputs);

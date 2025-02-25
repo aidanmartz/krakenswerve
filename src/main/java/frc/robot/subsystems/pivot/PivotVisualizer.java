@@ -20,8 +20,8 @@ public class PivotVisualizer {
     private final MechanismRoot2d root;
     private final MechanismLigament2d arm;
 
-    private static final double ElevatorXModifier = -Math.cos(Degrees.of(45).in(Radians));
-    private static final double ElevatorZModifier = Math.sin(Degrees.of(45).in(Radians));
+    private static final double ElevatorXModifier = -Math.cos(Degrees.of(90).in(Radians));
+    private static final double ElevatorZModifier = Math.sin(Degrees.of(90).in(Radians));
     private static final Distance PivotXModifier = Meters.of(0.07);
     private static final Distance PivotYModifier = Inches.of(3);
     private static final Distance PivotZModifier = Meters.of(0.377);
