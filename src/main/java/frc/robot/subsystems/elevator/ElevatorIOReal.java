@@ -35,7 +35,7 @@ public class ElevatorIOReal implements ElevatorIO {
     
     //unused// private Stop nextStop = Stop.SAFE;
     private MutDistance currentPosition = Inches.mutable(0.0);
-    private ElevatorFeedforward el_Feedforward = new ElevatorFeedforward(1.0, 0.0, 0.0);
+    private ElevatorFeedforward el_Feedforward = new ElevatorFeedforward(0.0, 0.5, 0);
     
     public ElevatorIOReal() {
         
@@ -67,16 +67,16 @@ public class ElevatorIOReal implements ElevatorIO {
     public void runSetpoint(Distance position) {
         currentPosition.mut_replace(position); // probably unneeded since we are capturing inputs elsewhere?
         double level = position.in(Inches);
-        double feedforward = el_Feedforward.calculate(1.0);
+        double feedforward = el_Feedforward.calculate(0.01);
         closedLoopControllerLeft.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
                 feedforward);
-                closedLoopControllerRight.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
+        closedLoopControllerRight.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
                 feedforward);
     }
 
     @Override
     public void setFF(double kS, double kG, double kV, double kA) {
-        el_Feedforward = new ElevatorFeedforward( kS, kG, kV, kA);
+       // el_Feedforward = new ElevatorFeedforward( kS, kG, kV, kA);
     }
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {

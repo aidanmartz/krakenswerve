@@ -6,6 +6,7 @@ import java.util.Map;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -22,12 +23,14 @@ public class Elevator extends SubsystemBase {
     private static final LoggedTunableNumber kI = new LoggedTunableNumber("Elevator/Gains/kI", 0.0);
     private static final LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/Gains/kD", 0.2);
 
-    private static final LoggedTunableNumber kS = new LoggedTunableNumber("Pivot/Gains/kS", 0.0);
-    private static final LoggedTunableNumber kV = new LoggedTunableNumber("Pivot/Gains/kV", 0.0);
-    private static final LoggedTunableNumber kA = new LoggedTunableNumber("Pivot/Gains/kA", 1.45);
-    private static final LoggedTunableNumber kG = new LoggedTunableNumber("Pivot/Gains/kG", 0.0);
-
-    
+    private static final LoggedTunableNumber kS = new LoggedTunableNumber("Elevator/Gains/kS", 0.0);
+    private static final LoggedTunableNumber kV = new LoggedTunableNumber("Elevator/Gains/kV", 0.0);
+    private static final LoggedTunableNumber kA = new LoggedTunableNumber("Elevator/Gains/kA", 1.45);
+    private static final LoggedTunableNumber kG = new LoggedTunableNumber("Elevator/Gains/kG", 0.0);
+     
+    private double myKg = 1;
+    private Distance level;
+    private Distance prevLevel;
 
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
@@ -51,6 +54,10 @@ public class Elevator extends SubsystemBase {
         this.target = RobotState.getDesiredInstance();
         this.goal = RobotState.getGoalInstance();
 
+        this.prevLevel = Inches.of(0);
+        this.level  = Inches.of(0);
+        this.myKg = 2;
+
         measuredVisualizer = new ElevatorVisualizer("Measured", Color.kBlack);
         goalVisualizer = new ElevatorVisualizer("Goal", Color.kBlue);
     }
@@ -73,30 +80,34 @@ public class Elevator extends SubsystemBase {
             Map.entry(ElevatorStop.L2_ALGAE, Inches.of(13.0)),
             Map.entry(ElevatorStop.L3, Inches.of(11.5)),
             Map.entry(ElevatorStop.L3_ALGAE, Inches.of(18.0)),
-            Map.entry(ElevatorStop.L4, Inches.of(21.0))  //19.5
+            Map.entry(ElevatorStop.L4, Inches.of(20.0))  //19.5
         ));
 
 
     public Command moveTo(ElevatorStop stop) {
-        Distance level = elevatorHeights.get(stop);
-        if (this.actual.getElevatorPosition().lt(level)) {
-            return Commands.runOnce(() -> {
-                this.io.setFF(0.0, 0.0, 0.0, 0.0);
+        this.myKg +=10;
+        //this.prevLevel = this.level;
+        //this.level = elevatorHeights.get(stop);
+        /*if (this.prevLevel.lt(this.level)) {
+            this.myKg = 10.0;
 
-                this.setpoint = level;
-            });
-        } else if (this.actual.getElevatorPosition().gt(level)) {
-            return Commands.runOnce(() -> {
-                this.io.setFF(0.0, 10.0, 0.0, 0.0);
-                this.setpoint = level;
-            });
-        }
-        return Commands.runOnce(() -> this.setpoint = level);
+        } else {
+            this.myKg = 0.0;
+        }*/
+
+        return Commands.runOnce(() -> {
+                
+           // this.io.setFF(0.0, this.myKg, 0.0, 0.0);
+
+            this.setpoint = elevatorHeights.get(stop);
+        });
+//        return Commands.runOnce(() -> this.setpoint = level);
     }
 
-    public Command setPosition(Distance position) {
-        return runOnce(() -> this.setpoint = position);
-    }
+
+    //public Command setPosition(Distance position) {
+    //    return runOnce(() -> this.setpoint = position);
+    //}
 
     public Command waitForGreaterThanPosition(Distance position) {
         return Commands.waitUntil(() -> this.inputs.position.gt(position));
@@ -122,9 +133,12 @@ public class Elevator extends SubsystemBase {
             this.io.runSetpoint(this.setpoint);
         }
 
+        SmartDashboard.putNumber("kG", this.myKg);
+
         actual.updateElevatorPosition(this.inputs.position);
         target.updateElevatorPosition(this.inputs.setpointPosition);
         goal.updateElevatorPosition(this.setpoint);
     }
 
+  
 }
