@@ -8,11 +8,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Swerve;
-
+import frc.robot.subsystems.ledSubsystem;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -65,6 +66,7 @@ public class RobotContainer {
     private final Swerve s_Swerve = new Swerve();
     private final Elevator elevators;
     private final Pivot pivot;
+    private final ledSubsystem m_led = new ledSubsystem();
    // private final Pivot pivot = new Pivot();
 
     /**
@@ -106,6 +108,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
         /* Driver Buttons */
         dPadUp.onTrue(s_Swerve.zeroHeading());
+        aButton.whileTrue(new InstantCommand(() -> m_led.setRGB(255, 255, 255)));
         
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
 
@@ -124,8 +127,6 @@ public class RobotContainer {
        backButton.whileTrue(pivot.pivotTo(Pivots.Shoot));
 
     }
-
-
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
