@@ -63,10 +63,10 @@ public class Swerve extends SubsystemBase {
                 //gyro.getRotation2d(),
                 getGyroYaw(),
                 new SwerveModulePosition[] {
-                mSwerveMods[0].getPosition(),
-                mSwerveMods[1].getPosition(),
-                mSwerveMods[2].getPosition(),
-                mSwerveMods[3].getPosition(),
+                    mSwerveMods[0].getPosition(),
+                    mSwerveMods[1].getPosition(),
+                    mSwerveMods[2].getPosition(),
+                    mSwerveMods[3].getPosition(),
                 },
                 new Pose2d(),
                 VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
@@ -215,6 +215,10 @@ public class Swerve extends SubsystemBase {
         return getPose().getRotation();
     }
 
+    public double getYawRate() {
+        return gyro.getAngularVelocityZWorld().getValueAsDouble();
+    }
+
     public void setHeading(Rotation2d heading) {
         swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(),
                 new Pose2d(getPose().getTranslation(), heading));
@@ -244,18 +248,33 @@ public class Swerve extends SubsystemBase {
     }
 
     private void updateSwerveOdom() { // function will be called 250 times a second
-        swerveOdometry.update(getGyroYaw(), getModulePositions());
+        //swerveOdometry.update(getGyroYaw(), getModulePositions());
+        m_poseEstimator.update(getGyroYaw(), new SwerveModulePosition[]{
+            mSwerveMods[0].getPosition(),
+            mSwerveMods[1].getPosition(),
+            mSwerveMods[2].getPosition(),
+            mSwerveMods[3].getPosition()
+        });
     }
 
     @Override
     public void periodic() {
-        swerveOdometry.update(getGyroYaw(), getModulePositions());
+        //swerveOdometry.update(getGyroYaw(), getModulePositions());
+        updateSwerveOdom();
         SmartDashboard.putBoolean("limelight/use limelight", ll);
         SmartDashboard.putNumber("limelight/TX", LimelightHelpers.getTXNC("limelight"));
         SmartDashboard.putNumber("limelight/TA", LimelightHelpers.getTA("limelight"));
+        SmartDashboard.putNumber("limelight/Target ID", LimelightHelpers.getFiducialID("limelight"));
         SmartDashboard.putNumber("gyro yaw", getGyroYaw().getDegrees());
-        LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+
+        //LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+       
+        LimelightHelpers.SetRobotOrientation("limelight",getGyroYaw().getDegrees(),getYawRate(),0,0,0,0);
+
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        SmartDashboard.putString("LLPose ", LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight").pose.toString());
+
+        
         if(Math.abs(gyro.getAngularVelocityZWorld().getValueAsDouble()) > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
         {
             doRejectUpdate = true;

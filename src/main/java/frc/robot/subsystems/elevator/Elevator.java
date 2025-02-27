@@ -6,7 +6,6 @@ import java.util.Map;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -28,10 +27,6 @@ public class Elevator extends SubsystemBase {
     private static final LoggedTunableNumber kA = new LoggedTunableNumber("Elevator/Gains/kA", 1.45);
     private static final LoggedTunableNumber kG = new LoggedTunableNumber("Elevator/Gains/kG", 0.0);
      
-    private double myKg = 1;
-    private Distance level;
-    private Distance prevLevel;
-
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
@@ -53,10 +48,6 @@ public class Elevator extends SubsystemBase {
         this.actual = RobotState.getMeasuredInstance();
         this.target = RobotState.getDesiredInstance();
         this.goal = RobotState.getGoalInstance();
-
-        this.prevLevel = Inches.of(0);
-        this.level  = Inches.of(0);
-        this.myKg = 2;
 
         measuredVisualizer = new ElevatorVisualizer("Measured", Color.kBlack);
         goalVisualizer = new ElevatorVisualizer("Goal", Color.kBlue);
@@ -85,29 +76,11 @@ public class Elevator extends SubsystemBase {
 
 
     public Command moveTo(ElevatorStop stop) {
-        this.myKg +=10;
-        //this.prevLevel = this.level;
-        //this.level = elevatorHeights.get(stop);
-        /*if (this.prevLevel.lt(this.level)) {
-            this.myKg = 10.0;
-
-        } else {
-            this.myKg = 0.0;
-        }*/
-
         return Commands.runOnce(() -> {
-                
-           // this.io.setFF(0.0, this.myKg, 0.0, 0.0);
-
             this.setpoint = elevatorHeights.get(stop);
         });
-//        return Commands.runOnce(() -> this.setpoint = level);
+
     }
-
-
-    //public Command setPosition(Distance position) {
-    //    return runOnce(() -> this.setpoint = position);
-    //}
 
     public Command waitForGreaterThanPosition(Distance position) {
         return Commands.waitUntil(() -> this.inputs.position.gt(position));
@@ -132,8 +105,6 @@ public class Elevator extends SubsystemBase {
         } else {
             this.io.runSetpoint(this.setpoint);
         }
-
-        SmartDashboard.putNumber("kG", this.myKg);
 
         actual.updateElevatorPosition(this.inputs.position);
         target.updateElevatorPosition(this.inputs.setpointPosition);

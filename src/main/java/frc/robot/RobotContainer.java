@@ -3,10 +3,10 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -38,7 +38,7 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
 
     /* Controllers */
-    private final Joystick driver = new Joystick(0);
+    XboxController driver = new XboxController(0);
 
     /* Drive Controls */
     private final int translationAxis = XboxController.Axis.kLeftY.value;
@@ -56,7 +56,7 @@ public class RobotContainer {
     private final JoystickButton yButton = new JoystickButton(driver, XboxController.Button.kY.value);
     private final JoystickButton bButton = new JoystickButton(driver, XboxController.Button.kB.value);
     private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
-    //private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
+    private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
     private final JoystickButton startButton = new JoystickButton(driver, XboxController.Button.kStart.value);
     private final JoystickButton backButton = new JoystickButton(driver, XboxController.Button.kBack.value);
 
@@ -108,20 +108,24 @@ public class RobotContainer {
     private void configureButtonBindings() {
         /* Driver Buttons */
         dPadUp.onTrue(s_Swerve.zeroHeading());
-        aButton.whileTrue(new InstantCommand(() -> m_led.setRGB(255, 255, 255)));
+        rightBumper.whileTrue(new InstantCommand(() -> m_led.setRGB(255, 255, 255)));
         
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
 
-        aButton.whileTrue(elevators.moveTo(ElevatorStop.L1));
+        aButton.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.L1))
+            .andThen(new InstantCommand(() -> m_led.setColor(Color.kSkyBlue))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        xButton.whileTrue(elevators.moveTo(ElevatorStop.L2));
+        xButton.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.L2))
+            .andThen(new InstantCommand(() -> m_led.setColor(Color.kBlueViolet))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        yButton.whileTrue(elevators.moveTo(ElevatorStop.L3));
+        yButton.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.L3))
+            .andThen(new InstantCommand(() -> m_led.setColor(Color.kMediumPurple))));
       //  .andThen(elevators.pivotTo(Pivots.Shoot)));
-        bButton.whileTrue(elevators.moveTo(ElevatorStop.L4));
+        bButton.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.L4))
+            .andThen(new InstantCommand(() -> m_led.setColor(Color.kWhite))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        leftBumper.whileTrue(elevators.moveTo(ElevatorStop.SAFE));
-       // .andThen(elevators.pivotTo(Pivots.Intake)));
+        leftBumper.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.SAFE))
+            .andThen(new InstantCommand(() -> m_led.setColors(Color.kBlue,Color.kGreen))));
 
        startButton.whileTrue(pivot.pivotTo(Pivots.Intake));
        backButton.whileTrue(pivot.pivotTo(Pivots.Shoot));
