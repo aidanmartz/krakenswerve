@@ -112,24 +112,52 @@ public class RobotContainer {
         
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
 
-        aButton.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.L1))
+        aButton.onTrue(elevators.moveTo(ElevatorStop.L1)
             .andThen(new InstantCommand(() -> m_led.setColor(Color.kSkyBlue))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        xButton.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.L2))
+        xButton.onTrue(elevators.moveTo(ElevatorStop.L2)
             .andThen(new InstantCommand(() -> m_led.setColor(Color.kBlueViolet))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        yButton.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.L3))
+        yButton.onTrue(elevators.moveTo(ElevatorStop.L3)
             .andThen(new InstantCommand(() -> m_led.setColor(Color.kMediumPurple))));
       //  .andThen(elevators.pivotTo(Pivots.Shoot)));
-        bButton.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.L4))
+        bButton.onTrue(elevators.moveTo(ElevatorStop.L4)
             .andThen(new InstantCommand(() -> m_led.setColor(Color.kWhite))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        leftBumper.onTrue(new InstantCommand(() -> elevators.moveTo(ElevatorStop.SAFE))
+        leftBumper.onTrue(elevators.moveTo(ElevatorStop.SAFE)
             .andThen(new InstantCommand(() -> m_led.setColors(Color.kBlue,Color.kGreen))));
 
        startButton.whileTrue(pivot.pivotTo(Pivots.Intake));
        backButton.whileTrue(pivot.pivotTo(Pivots.Shoot));
 
+    }
+
+    /*  
+     * Top level commands to chain common operations
+     * these are useful to bind to a button and can be
+     * reused as autobuilder commands so changes are made
+     * in 1 spot
+     */
+
+    
+    // feed - get to feeder station with pivot and elevator in place and wait for coral sensor and pivots to shoot
+    private Command feed() {
+        return new InstantCommand(() -> m_led.setColor(Color.kCoral));
+    }
+
+    // scoreCoral - aligns, elevates, and reverses/turns off intake, waits for empty, lowers to safe, pivot to feed 
+    private Command scoreCoral() {
+        return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
+    }
+
+    // pullAlgae - aligns, elevates, turns on intake for time period since algae wont hit sensor, reverses bot some
+    private Command pullAlgae(){
+        return new InstantCommand(() -> m_led.setColor(Color.kGreen));
+    }
+
+    // scoreBarge - elevates to max, move forward?, reverse intake, back up?, lower elevator, pivot to feed
+    private Command scoreBarge() {
+        return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
     }
 
     /**
