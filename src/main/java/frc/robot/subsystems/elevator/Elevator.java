@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
+import frc.robot.subsystems.pivot.*;
 import frc.robot.util.LoggedTunableNumber;
 
 import static edu.wpi.first.units.Units.*;
@@ -39,6 +40,8 @@ public class Elevator extends SubsystemBase {
     private final RobotState target;
     private final RobotState goal;
 
+    Pivot pivot = new Pivot(null);
+
 
     public Elevator(ElevatorIO io) {
         this.io = io;
@@ -55,7 +58,7 @@ public class Elevator extends SubsystemBase {
 
     
     public enum ElevatorStop {
-        SAFE, // Intake occurs at "zero"
+        INTAKE, // Intake occurs at "zero"
         L1,
         L2,
         L2_ALGAE,
@@ -65,7 +68,7 @@ public class Elevator extends SubsystemBase {
     };
 
     private final EnumMap<ElevatorStop, Distance> elevatorHeights = new EnumMap<>(Map.ofEntries(
-            Map.entry(ElevatorStop.SAFE, Inches.of(0.1)),
+            Map.entry(ElevatorStop.INTAKE, Inches.of(0.1)),
             Map.entry(ElevatorStop.L1, Inches.of(3.0)),
             Map.entry(ElevatorStop.L2, Inches.of(6.0)),
             Map.entry(ElevatorStop.L2_ALGAE, Inches.of(13.0)),
@@ -76,10 +79,14 @@ public class Elevator extends SubsystemBase {
 
 
     public Command moveTo(ElevatorStop stop) {
-        return Commands.runOnce(() -> {
-            this.setpoint = elevatorHeights.get(stop);
-        });
-
+        if (pivot.pivotSafe()){
+            return Commands.runOnce(() -> {
+                this.setpoint = elevatorHeights.get(stop);
+            });
+        }
+        else{
+            return Commands.waitUntil(() -> pivot.pivotSafe());
+        }
     }
 
     public Command waitForGreaterThanPosition(Distance position) {

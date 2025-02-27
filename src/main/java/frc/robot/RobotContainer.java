@@ -124,7 +124,7 @@ public class RobotContainer {
         bButton.onTrue(elevators.moveTo(ElevatorStop.L4)
             .andThen(new InstantCommand(() -> m_led.setColor(Color.kWhite))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        leftBumper.onTrue(elevators.moveTo(ElevatorStop.SAFE)
+        leftBumper.onTrue(elevators.moveTo(ElevatorStop.INTAKE)
             .andThen(new InstantCommand(() -> m_led.setColors(Color.kBlue,Color.kGreen))));
 
        startButton.whileTrue(pivot.pivotTo(Pivots.Intake));
@@ -140,12 +140,12 @@ public class RobotContainer {
      */
 
     
-    // feed - get to feeder station with pivot and elevator in place and wait for coral sensor and pivots to shoot
+    // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
     private Command feed() {
         return new InstantCommand(() -> m_led.setColor(Color.kCoral));
     }
 
-    // scoreCoral - aligns, elevates, and reverses/turns off intake, waits for empty, lowers to safe, pivot to feed 
+    // scoreCoral - aligns, elevates, ensure proper position, outtake, waits for empty, stop intake, pivot up, lowers to safe, pivot to feed 
     private Command scoreCoral() {
         return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
     }
