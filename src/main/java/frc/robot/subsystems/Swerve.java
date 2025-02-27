@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.util.Units;
 
 //import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,6 +20,8 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -31,21 +34,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Swerve extends SubsystemBase {
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
-    public Pigeon2 gyro;
+    public Pigeon2 gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.CanBus);
     public Boolean ll;
+    public boolean doRejectUpdate = false;
 
     // private final ReentrantLock swerveModLock = new ReentrantLock();
     private final Notifier odoNotifier;
+    private final SwerveDrivePoseEstimator m_poseEstimator;
 
     public Swerve() {
-        gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.CanBus);
+        gyro.reset();
         gyro.getConfigurator().apply(new Pigeon2Configuration());
         gyro.setYaw(0);
         ll = false;
 
-        boolean isFastOdo = Constants.Swerve.isOnCANivore;
-        odoNotifier = new Notifier(this::updateSwerveOdom);
-        odoNotifier.startPeriodic(isFastOdo ? 1.0 / 250.0 : 1.0 / 50.0);
 
         mSwerveMods = new SwerveModule[] {
                 new SwerveModule(0, Constants.Swerve.Mod0.constants),
@@ -55,6 +57,26 @@ public class Swerve extends SubsystemBase {
         };
 
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
+
+        m_poseEstimator = new SwerveDrivePoseEstimator(
+                Constants.Swerve.swerveKinematics,
+                //gyro.getRotation2d(),
+                getGyroYaw(),
+                new SwerveModulePosition[] {
+                mSwerveMods[0].getPosition(),
+                mSwerveMods[1].getPosition(),
+                mSwerveMods[2].getPosition(),
+                mSwerveMods[3].getPosition(),
+                },
+                new Pose2d(),
+                VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
+                VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30))
+        );
+
+        boolean isFastOdo = Constants.Swerve.isOnCANivore;
+        odoNotifier = new Notifier(this::updateSwerveOdom);
+        odoNotifier.startPeriodic(isFastOdo ? 1.0 / 250.0 : 1.0 / 50.0);       
+       
         try {
             RobotConfig config = RobotConfig.fromGUISettings();
 
@@ -82,12 +104,14 @@ public class Swerve extends SubsystemBase {
         } catch (Exception e) {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", e.getStackTrace());
         }
+
     }
 
     private double limelightRotation() {
         double targetAngularVel = LimelightHelpers.getTXNC("limelight") * Constants.VisionConstants.kCameraAimScaler;
+        //double targetAngleVelocity = LimelightHelpers.getTargetPose_CameraSpace2D("limelight")[5];
         targetAngularVel *= -1;
-        SmartDashboard.putNumber("limelight/Angular Velcity", targetAngularVel);
+        SmartDashboard.putNumber("limelight/Angular Velocity", targetAngularVel);
         return targetAngularVel;
     }
 
@@ -229,6 +253,22 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putBoolean("limelight/use limelight", ll);
         SmartDashboard.putNumber("limelight/TX", LimelightHelpers.getTXNC("limelight"));
         SmartDashboard.putNumber("limelight/TA", LimelightHelpers.getTA("limelight"));
+        SmartDashboard.putNumber("gyro yaw", getGyroYaw().getDegrees());
+        LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        if(Math.abs(gyro.getAngularVelocityZWorld().getValueAsDouble()) > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
+        {
+            doRejectUpdate = true;
+        }
+        if(mt2.tagCount == 0)
+        {
+            doRejectUpdate = true;
+        }
+        if(!doRejectUpdate)
+        {
+            m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+            m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+        }
         for (SwerveModule mod : mSwerveMods) {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());
