@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ledSubsystem extends SubsystemBase{
     
     private final AddressableLED m_led = new AddressableLED(0); // PWM port 0
-    private final AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(100); // fix to length
+    private final AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(600); // fix to length
 
     Timer ledTimerOn;
     Timer ledTimerOff;
