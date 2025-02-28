@@ -260,7 +260,6 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic() {
         //swerveOdometry.update(getGyroYaw(), getModulePositions());
-        updateSwerveOdom();
         SmartDashboard.putBoolean("limelight/use limelight", ll);
         SmartDashboard.putNumber("limelight/TX", LimelightHelpers.getTXNC("limelight"));
         SmartDashboard.putNumber("limelight/TA", LimelightHelpers.getTA("limelight"));
@@ -288,6 +287,8 @@ public class Swerve extends SubsystemBase {
             m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
             m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
         }
+        updateSwerveOdom();
+
         for (SwerveModule mod : mSwerveMods) {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());

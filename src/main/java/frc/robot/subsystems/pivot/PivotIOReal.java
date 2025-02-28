@@ -36,22 +36,22 @@ public class PivotIOReal implements PivotIO {
         
     }
             
-public SparkFlex setupPivotSparkFlex(boolean left, int canid) {
-    SparkFlexConfig config = new SparkFlexConfig();
-    SparkFlex pivotSpark = new SparkFlex(canid, MotorType.kBrushless);
-    config
-            .inverted(left) // left: inverted=true, right: inverted=false
-            .idleMode(IdleMode.kBrake);
-    config.encoder
-            .positionConversionFactor(1)
-            .velocityConversionFactor(1);
-    config.closedLoop
-            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .pid(0.1, 0.0, 0.0);
-    pivotSpark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    pivotSpark.getEncoder().setPosition(0);
-    return pivotSpark;
-}
+    public SparkFlex setupPivotSparkFlex(boolean left, int canid) {
+        SparkFlexConfig config = new SparkFlexConfig();
+        SparkFlex pivotSpark = new SparkFlex(canid, MotorType.kBrushless);
+        config
+                .inverted(left) // left: inverted=true, right: inverted=false
+                .idleMode(IdleMode.kBrake);
+        config.encoder
+                .positionConversionFactor(1)
+                .velocityConversionFactor(1);
+        config.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .pid(0.1, 0.0, 0.0);
+        pivotSpark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        pivotSpark.getEncoder().setPosition(0);
+        return pivotSpark;
+    }
 
     @Override
     public void updateInputs(PivotIOInputs inputs) {
@@ -70,8 +70,6 @@ public SparkFlex setupPivotSparkFlex(boolean left, int canid) {
 
         inputs.temperatureLeader.mut_replace(leader.getMotorTemperature(), Celsius);
         inputs.temperatureFollower.mut_replace(follower.getMotorTemperature(), Celsius);
-
-
     }
 
     @Override
@@ -85,5 +83,6 @@ public SparkFlex setupPivotSparkFlex(boolean left, int canid) {
     public void runVolts(Voltage volts) {
         leader.setVoltage(volts.in(Volts));
     }
+
 }
 

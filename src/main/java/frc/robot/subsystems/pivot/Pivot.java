@@ -61,11 +61,13 @@ public class Pivot extends SubsystemBase {
 
     public enum Pivots {
         Intake,
-        Shoot
+        Shoot,
+        Up
     };
 
     private final EnumMap<Pivots, Angle> pivotsPos = new EnumMap<>(Map.ofEntries(
             Map.entry(Pivots.Intake, Degrees.of(7.5)),
+            Map.entry(Pivots.Up, Degrees.of(11)),
             Map.entry(Pivots.Shoot, Degrees.of(18.0))));
 
     
@@ -77,9 +79,9 @@ public class Pivot extends SubsystemBase {
         return runOnce(() -> this.setpoint = position);
     }
 
-    // public double getPivotPos() {
-    //     return setpoint;
-    // }
+    public boolean pivotSafe(){
+        return (setpoint.compareTo(pivotsPos.get(Pivots.Up)) > -0.5);
+    }
 
     @Override
     public void periodic() {
