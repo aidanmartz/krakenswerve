@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.subsystems.Swerve;
 
 import java.util.function.BooleanSupplier;
@@ -36,6 +37,12 @@ public class TeleopSwerve extends Command {
         double translationVal = MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.stickDeadband);
         double strafeVal = MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.stickDeadband);
         double rotationVal = MathUtil.applyDeadband(rotationSup.getAsDouble(), Constants.stickDeadband);
+
+        // Driver position is inverted for Red alliance, so adjust field-oriented controls
+        if (Robot.isRed()) {
+            translationVal *= -1.0;
+            strafeVal *= -1.0;
+        }
 
         /* Drive */
         s_Swerve.drive(

@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.EnumMap;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -14,11 +16,12 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.ledSubsystem;
+import frc.robot.subsystems.dontuse_Elevator.Stop;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.Elevator.ElevatorStop; // enum of stops
-
+import frc.robot.Constants.Localization.ReefFace;
 import frc.robot.subsystems.pivot.Pivot;
 import frc.robot.subsystems.pivot.Pivot.Pivots;
 import frc.robot.subsystems.pivot.PivotIOReal;
@@ -36,6 +39,11 @@ import frc.robot.subsystems.pivot.PivotIOSim;
 public class RobotContainer {
     /* Auto */
     private final SendableChooser<Command> autoChooser;
+
+    EnumMap<ReefFace, Command> alignLeftCommands = new EnumMap<>(ReefFace.class);
+    EnumMap<ReefFace, Command> alignRightCommands = new EnumMap<>(ReefFace.class);
+    EnumMap<ReefFace, Command> pullAlgaeLeftCommands = new EnumMap<>(ReefFace.class);
+    EnumMap<ReefFace, Command> pullAlgaeRightCommands = new EnumMap<>(ReefFace.class);
 
     /* Controllers */
     XboxController driver = new XboxController(0);
@@ -67,7 +75,6 @@ public class RobotContainer {
     private final Elevator elevators;
     private final Pivot pivot;
     private final ledSubsystem m_led = new ledSubsystem();
-   // private final Pivot pivot = new Pivot();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -80,7 +87,11 @@ public class RobotContainer {
             this.elevators = new Elevator(new ElevatorIOSim());
             this.pivot = new Pivot(new PivotIOSim());
         }
-        
+
+        for (ReefFace face: ReefFace.values()) {
+            setReefCommands(face);
+        }
+       
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -96,7 +107,6 @@ public class RobotContainer {
         configureButtonBindings();
     }
 
-
     /**
      * Use this method to define your button->command mappings. Buttons can be
      * created by
@@ -107,7 +117,8 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         /* Driver Buttons */
-        dPadUp.onTrue(s_Swerve.zeroHeading());
+        dPadUp.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
+
         rightBumper.whileTrue(new InstantCommand(() -> m_led.setRGB(255, 255, 255)));
         
         dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
@@ -146,18 +157,29 @@ public class RobotContainer {
     }
 
     // scoreCoral - aligns, elevates, ensure proper position, outtake, waits for empty, stop intake, pivot up, lowers to safe, pivot to feed 
-    private Command scoreCoral() {
+    private Command scoreCoral(ReefFace face, boolean left) {
         return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
     }
 
     // pullAlgae - aligns, elevates, turns on intake for time period since algae wont hit sensor, reverses bot some
-    private Command pullAlgae(){
+    private Command pullAlgae(ReefFace face){
+        // Check the map to see if the algae is L2 or L3
+        Stop algaeHeight = face.algaeHigh ? Stop.L3_ALGAE : Stop.L2_ALGAE;
+
         return new InstantCommand(() -> m_led.setColor(Color.kGreen));
     }
 
     // scoreBarge - elevates to max, move forward?, reverse intake, back up?, lower elevator, pivot to feed
     private Command scoreBarge() {
         return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
+    }
+
+    // Setup basic last foot options
+    private void setReefCommands(ReefFace face) {
+        alignLeftCommands.put(face, scoreCoral(face, true));
+        alignRightCommands.put(face, scoreCoral(face, false));
+        pullAlgaeLeftCommands.put(face, pullAlgae(face));
+        pullAlgaeRightCommands.put(face, pullAlgae(face));
     }
 
     /**

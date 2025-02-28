@@ -3,12 +3,20 @@ package frc.robot;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.util.FlippingUtil;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.MomentOfInertia;
+import static edu.wpi.first.units.Units.*;
 import frc.lib.util.COTSTalonFXSwerveConstants;
 import frc.lib.util.SwerveModuleConstants;
 
@@ -46,22 +54,87 @@ public final class Constants {
 
     }
 
+    public static final class Localization {
+        public static final double fieldWidth = FlippingUtil.fieldSizeY;
+        public static final double fieldLength = FlippingUtil.fieldSizeX;
+
+        public static final double reefElevatorZoneRadius = Units.inchesToMeters(80.0); // TODO Revisit
+        public static final double autoUpDistance = Units.inchesToMeters(44.0);
+        public static final double wingLength = Units.inchesToMeters(280);
+
+        public static final double robotFrameLength = Units.inchesToMeters(25);
+        public static final double bumperWidth = Units.inchesToMeters(3.2);
+        public static final double reefStandoff = Units.inchesToMeters(1.0);
+        public static final double reefOffset = robotFrameLength / 2.0 + bumperWidth + reefStandoff;
+        public static final double reefExtraOffset = Units.inchesToMeters(6.0);
+        public static final double bonusStandoff = Units.inchesToMeters(4.0);
+
+        // Locations from the Blue Alliance perspective
+        public static final Translation2d reefCenter = new Translation2d(Units.inchesToMeters(176.75), fieldWidth / 2.0);
+        public static final double reefToFaceDistance = reefCenter.getX() - Units.inchesToMeters(144.0);
+        public static final double branchSeparation = Units.inchesToMeters(12.0 + 15.0 / 16.0);
+
+        // Offset to the reef face, not at the branches, but on the faces directly in front
+        public static final Translation2d centerOffset = new Translation2d(reefToFaceDistance + reefOffset, 0.0);
+        private static final Translation2d leftOffset = new Translation2d(reefToFaceDistance + reefOffset, -branchSeparation / 2.0);
+        private static final Translation2d rightOffset = new Translation2d(reefToFaceDistance + reefOffset, branchSeparation / 2.0);
+        private static final Translation2d extraOffset = new Translation2d(reefExtraOffset, 0.0);
+        private static final Translation2d centerApproachOffset = centerOffset.plus(extraOffset);
+        private static final Translation2d leftApproachOffset = leftOffset.plus(extraOffset);
+        private static final Translation2d rightApproachOffset = rightOffset.plus(extraOffset);
+        private static final Translation2d bonusOffset = new Translation2d(bonusStandoff, 0.0);
+        private static final Translation2d leftBonusOffset = leftOffset.plus(bonusOffset);
+        private static final Translation2d rightBonusOffset = rightOffset.plus(bonusOffset);
+
+        // Dont climb the reef
+        public static final double elevatorNoDownDistance = reefToFaceDistance + reefOffset + Units.inchesToMeters(12.0);
+
+        public static enum ReefFace {
+            AB(-180, true),
+            CD(-120, false),
+            EF(-60, true),
+            GH(0, false),
+            IJ(60, true),
+            KL(120, false);
+
+            ReefFace(double directionDegrees, boolean algaeHigh) {
+                directionFromCenter = Rotation2d.fromDegrees(directionDegrees);
+                alignMiddle = new Pose2d(reefCenter.plus(centerOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
+                alignLeft = new Pose2d(reefCenter.plus(leftOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
+                alignRight = new Pose2d(reefCenter.plus(rightOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
+                approachMiddle = new Pose2d(reefCenter.plus(centerApproachOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
+                approachLeft = new Pose2d(reefCenter.plus(leftApproachOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
+                approachRight = new Pose2d(reefCenter.plus(rightApproachOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
+                alignBonusLeft = new Pose2d(reefCenter.plus(leftBonusOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
+                alignBonusRight = new Pose2d(reefCenter.plus(rightBonusOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
+                this.algaeHigh = algaeHigh;
+            }
+
+            public final Rotation2d directionFromCenter;
+            public final Pose2d alignLeft, alignMiddle, alignRight;
+            public final Pose2d approachLeft, approachMiddle, approachRight;
+            public final Pose2d alignBonusLeft, alignBonusRight;
+            public final boolean algaeHigh;       
+        }
+    }
+
     public static final class Swerve {
 
         public static final int pigeonID = 10;
-        public static final String CanBus = "Drivetrain"; //TODO: if on canivore, change this to CANivore name or serial number
-        public static final boolean focEnabled = true; // TODO: This must be tuned to specific robot
+        public static final String CanBus = "Drivetrain"; 
+        public static final boolean focEnabled = true; 
         public static final boolean isOnCANivore = true;
 
-        public static final COTSTalonFXSwerveConstants chosenModule = // TODO: This must be tuned to specific robot
+        public static final COTSTalonFXSwerveConstants chosenModule = 
                 COTSTalonFXSwerveConstants.WCP.SwerveXFlipped
                         .KrakenX60(COTSTalonFXSwerveConstants.WCP.SwerveXFlipped.driveRatios.X3_10);
 
         /* Drivetrain Constants */
         /* Center to Center distance of left and right modules in meters. */
-        public static final double trackWidth = Units.inchesToMeters(25); // TODO: This must be tuned to specific robot
+        public static final double trackWidth = Units.inchesToMeters(25); 
+
         /* Center to Center distance of front and rear module wheels in meters. */
-        public static final double wheelBase = Units.inchesToMeters(25); // TODO: This must be tuned to specific robot
+        public static final double wheelBase = Units.inchesToMeters(25); 
         public static final double wheelCircumference = chosenModule.wheelCircumference;
 
         /*
@@ -214,6 +287,24 @@ public final class Constants {
         public static final double kCamHeight = 0.41;
         public static final double kTagHeight = 1.27;
         public static final double kCamPitch = Math.PI / 4; // ~45 degrees (pi/4 rad)
+    }
+
+      public static final class PathPlanner {
+        public static final RobotConfig robotConfig = new RobotConfig(
+            Mass.ofRelativeUnits(130, Pounds),
+            MomentOfInertia.ofRelativeUnits(7.0, KilogramSquareMeters),
+            new ModuleConfig(
+                Swerve.wheelCircumference / (Math.PI * 2.0),
+                Swerve.maxSpeed * 0.95, // Leave a little headroom for inefficiencies
+                1.916, // 3847 Spectrum Vex GripLock v2 CoF
+                DCMotor.getKrakenX60Foc(1),
+                Swerve.chosenModule.driveGearRatio,
+                Swerve.driveCurrentLimit,
+                1),
+            new Translation2d(Swerve.wheelBase / 2.0, Swerve.trackWidth / 2.0),
+            new Translation2d(Swerve.wheelBase / 2.0, -Swerve.trackWidth / 2.0),
+            new Translation2d(-Swerve.wheelBase / 2.0, Swerve.trackWidth / 2.0),
+            new Translation2d(-Swerve.wheelBase / 2.0, -Swerve.trackWidth / 2.0));
     }
 
 }

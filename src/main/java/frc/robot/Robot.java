@@ -137,4 +137,12 @@ public class Robot extends LoggedRobot {
   @Override
   public void testPeriodic() {
   }
+
+  public static boolean isRed() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+        return alliance.get() == DriverStation.Alliance.Red;
+    }
+    return false;
+  }
 }
