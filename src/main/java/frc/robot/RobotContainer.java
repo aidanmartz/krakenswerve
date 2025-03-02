@@ -1,6 +1,7 @@
 package frc.robot;
 
 import java.util.EnumMap;
+import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -10,8 +11,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Swerve;
@@ -21,6 +24,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.Elevator.ElevatorStop; // enum of stops
+import frc.lib.util.LoggedCommands;
 import frc.robot.Constants.Localization.ReefFace;
 import frc.robot.subsystems.pivot.Pivot;
 import frc.robot.subsystems.pivot.Pivot.Pivots;
@@ -46,34 +50,17 @@ public class RobotContainer {
     EnumMap<ReefFace, Command> pullAlgaeRightCommands = new EnumMap<>(ReefFace.class);
 
     /* Controllers */
-    XboxController driver = new XboxController(0);
+    CommandXboxController driver = new CommandXboxController(0);
 
     /* Drive Controls */
-    private final int translationAxis = XboxController.Axis.kLeftY.value;
-    private final int strafeAxis = XboxController.Axis.kLeftX.value;
-    private final int rotationAxis = XboxController.Axis.kRightX.value;
-
-    /* Driver Buttons */
-    private final POVButton dPadUp = new POVButton(driver, 0); // zero Gyro
-    private final POVButton dPadRight = new POVButton(driver, 45); // robot centric
-    private final POVButton dPadDown = new POVButton(driver, 180); // reset to Absolute
-    private final JoystickButton rightStick = new JoystickButton(driver, XboxController.Button.kRightStick.value);
-
-    private final JoystickButton aButton = new JoystickButton(driver, XboxController.Button.kA.value);
-    private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
-    private final JoystickButton yButton = new JoystickButton(driver, XboxController.Button.kY.value);
-    private final JoystickButton bButton = new JoystickButton(driver, XboxController.Button.kB.value);
-    private final JoystickButton leftBumper = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
-    private final JoystickButton rightBumper = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
-    private final JoystickButton startButton = new JoystickButton(driver, XboxController.Button.kStart.value);
-    private final JoystickButton backButton = new JoystickButton(driver, XboxController.Button.kBack.value);
-
-    //private final JoystickButton leftStick = new JoystickButton(driver, XboxController.Button.kLeftStick.value);
+    private final Supplier<Double> translationAxis = driver::getLeftY;
+    private final Supplier<Double> strafeAxis = driver::getLeftX;
+    private final Supplier<Double> rotationAxis = driver::getRightX;
 
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
     private final Elevator elevators;
-    private final Pivot pivot;
+    //private final Pivot pivot;
     private final ledSubsystem m_led = new ledSubsystem();
 
     /**
@@ -82,10 +69,10 @@ public class RobotContainer {
     public RobotContainer() {
         if (Robot.isReal()) {
             this.elevators = new Elevator(new ElevatorIOReal());
-            this.pivot = new Pivot(new PivotIOReal());
+           // this.pivot = new Pivot(new PivotIOReal());
         } else {
             this.elevators = new Elevator(new ElevatorIOSim());
-            this.pivot = new Pivot(new PivotIOSim());
+            // this.pivot = new Pivot(new PivotIOSim());
         }
 
         for (ReefFace face: ReefFace.values()) {
@@ -98,10 +85,11 @@ public class RobotContainer {
         s_Swerve.setDefaultCommand(
                 new TeleopSwerve(
                         s_Swerve,
-                        () -> -driver.getRawAxis(translationAxis),
-                        () -> -driver.getRawAxis(strafeAxis),
-                        () -> -driver.getRawAxis(rotationAxis),
-                        () -> dPadRight.getAsBoolean(), () -> rightStick.getAsBoolean()));
+                        () -> -translationAxis.get(),
+                        () -> -strafeAxis.get(),
+                        () -> -rotationAxis.get(),
+                        () -> driver.povUp().getAsBoolean(), 
+                        () -> driver.rightStick().getAsBoolean()));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -117,29 +105,44 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         /* Driver Buttons */
-        dPadUp.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
 
-        rightBumper.whileTrue(new InstantCommand(() -> m_led.setRGB(255, 255, 255)));
+
+        driver.povUp().onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
+
+        //driver.rightBumper().whileTrue(new InstantCommand(() -> m_led.setRGB(255, 255, 255)));
         
-        dPadDown.onTrue(s_Swerve.resetModulesToAbsolute());
+        driver.povDown().onTrue(s_Swerve.resetModulesToAbsolute());
 
-        aButton.onTrue(elevators.moveTo(ElevatorStop.L1)
+        driver.a().onTrue(elevators.moveTo(ElevatorStop.L1)
             .andThen(new InstantCommand(() -> m_led.setColor(Color.kSkyBlue))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        xButton.onTrue(elevators.moveTo(ElevatorStop.L2)
+        driver.x().onTrue(elevators.moveTo(ElevatorStop.L2)
             .andThen(new InstantCommand(() -> m_led.setColor(Color.kBlueViolet))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        yButton.onTrue(elevators.moveTo(ElevatorStop.L3)
+        driver.y().onTrue(elevators.moveTo(ElevatorStop.L3)
             .andThen(new InstantCommand(() -> m_led.setColor(Color.kMediumPurple))));
       //  .andThen(elevators.pivotTo(Pivots.Shoot)));
-        bButton.onTrue(elevators.moveTo(ElevatorStop.L4)
-            .andThen(new InstantCommand(() -> m_led.setColor(Color.kWhite))));
+       // bButton.onTrue(elevators.moveTo(ElevatorStop.L4)
+       //     .andThen(new InstantCommand(() -> m_led.setColor(Color.kWhite))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        leftBumper.onTrue(elevators.moveTo(ElevatorStop.INTAKE)
-            .andThen(new InstantCommand(() -> m_led.setColors(Color.kBlue,Color.kGreen))));
+        driver.leftBumper().whileTrue(
+            Commands.either(
+                Commands.select(alignLeftCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
+                Commands.select(pullAlgaeLeftCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
+                driver.povLeft()
+            )
+        );
 
-       startButton.whileTrue(pivot.pivotTo(Pivots.Intake));
-       backButton.whileTrue(pivot.pivotTo(Pivots.Shoot));
+        driver.rightBumper().whileTrue(
+            Commands.either(
+                Commands.select(alignRightCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
+                Commands.select(pullAlgaeRightCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
+                driver.povLeft()
+            )
+        );
+
+       //startButton.whileTrue(pivot.pivotTo(Pivots.Intake));
+       //backButton.whileTrue(pivot.pivotTo(Pivots.Shoot));
 
     }
 
@@ -152,21 +155,23 @@ public class RobotContainer {
 
     
     // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
-    private Command feed() {
+    private Command feed(ReefFace face, boolean left) {
         return new InstantCommand(() -> m_led.setColor(Color.kCoral));
     }
 
     // scoreCoral - aligns, elevates, ensure proper position, outtake, waits for empty, stop intake, pivot up, lowers to safe, pivot to feed 
     private Command scoreCoral(ReefFace face, boolean left) {
-        return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
+        return new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, true);
+        //return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
     }
 
     // pullAlgae - aligns, elevates, turns on intake for time period since algae wont hit sensor, reverses bot some
-    private Command pullAlgae(ReefFace face){
+    private Command pullAlgae(ReefFace face, boolean left){
         // Check the map to see if the algae is L2 or L3
         Stop algaeHeight = face.algaeHigh ? Stop.L3_ALGAE : Stop.L2_ALGAE;
+        return new LocalSwerve(s_Swerve, face.approachMiddle, true);
 
-        return new InstantCommand(() -> m_led.setColor(Color.kGreen));
+        //return new InstantCommand(() -> m_led.setColor(Color.kGreen));
     }
 
     // scoreBarge - elevates to max, move forward?, reverse intake, back up?, lower elevator, pivot to feed
@@ -178,8 +183,8 @@ public class RobotContainer {
     private void setReefCommands(ReefFace face) {
         alignLeftCommands.put(face, scoreCoral(face, true));
         alignRightCommands.put(face, scoreCoral(face, false));
-        pullAlgaeLeftCommands.put(face, pullAlgae(face));
-        pullAlgaeRightCommands.put(face, pullAlgae(face));
+        pullAlgaeLeftCommands.put(face, pullAlgae(face, true));
+        pullAlgaeRightCommands.put(face, pullAlgae(face, false));
     }
 
     /**

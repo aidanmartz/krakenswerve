@@ -46,7 +46,7 @@ public class Pivot extends SubsystemBase {
 
     public Pivot(PivotIO io) {
         this.io = io;
-        //this.io.setPID(0.15, 0, 0);
+        this.io.setPID(0.15, 0, 0);
         this.io.setPID(kP.get(), kI.get(), kD.get());
         this.io.setFF(kS.get(), kG.get(), kV.get(), kA.get());
         this.actual = RobotState.getMeasuredInstance();

@@ -40,7 +40,7 @@ public class Elevator extends SubsystemBase {
     private final RobotState target;
     private final RobotState goal;
 
-    Pivot pivot = new Pivot(null);
+    //Pivot pivot = new Pivot(null);
 
 
     public Elevator(ElevatorIO io) {
@@ -79,14 +79,14 @@ public class Elevator extends SubsystemBase {
 
 
     public Command moveTo(ElevatorStop stop) {
-        if (pivot.pivotSafe()){
+        //if (pivot.pivotSafe()){
             return Commands.runOnce(() -> {
                 this.setpoint = elevatorHeights.get(stop);
             });
-        }
-        else{
-            return Commands.waitUntil(() -> pivot.pivotSafe());
-        }
+        //}
+        //else{
+        //    return Commands.waitUntil(() -> pivot.pivotSafe());
+        //}
     }
 
     public Command waitForGreaterThanPosition(Distance position) {
@@ -99,7 +99,7 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
-        super.periodic();
+         super.periodic();
 
         this.io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
@@ -116,7 +116,8 @@ public class Elevator extends SubsystemBase {
         actual.updateElevatorPosition(this.inputs.position);
         target.updateElevatorPosition(this.inputs.setpointPosition);
         goal.updateElevatorPosition(this.setpoint);
+        
     }
 
-  
+
 }

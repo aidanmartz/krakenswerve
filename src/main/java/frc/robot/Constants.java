@@ -62,11 +62,11 @@ public final class Constants {
         public static final double autoUpDistance = Units.inchesToMeters(44.0);
         public static final double wingLength = Units.inchesToMeters(280);
 
-        public static final double robotFrameLength = Units.inchesToMeters(25);
-        public static final double bumperWidth = Units.inchesToMeters(3.2);
+        public static final double robotFrameLength = Units.inchesToMeters(30);
+        public static final double bumperWidth = Units.inchesToMeters(3);
         public static final double reefStandoff = Units.inchesToMeters(1.0);
         public static final double reefOffset = robotFrameLength / 2.0 + bumperWidth + reefStandoff;
-        public static final double reefExtraOffset = Units.inchesToMeters(6.0);
+        public static final double reefExtraOffset = Units.inchesToMeters(16.0);
         public static final double bonusStandoff = Units.inchesToMeters(4.0);
 
         // Locations from the Blue Alliance perspective

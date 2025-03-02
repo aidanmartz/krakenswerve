@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 import frc.robot.subsystems.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class LocalSwerve extends LoggedCommandBase{
     private final Swerve m_swerve;
@@ -20,8 +21,8 @@ public class LocalSwerve extends LoggedCommandBase{
     private final double roughPositionTolerance = 2.5; // inches
     private final double rotationKS = 0.02;
     private final double rotationIZone = 4;
-    private final double maxSpeed = Constants.Swerve.maxSpeed / 3.0;
-    private final double maxAngularVelocity = Constants.Swerve.maxAngularVelocity / 2.0;
+    private final double maxSpeed = Constants.Swerve.maxSpeed / 5.0; // 3.0
+    private final double maxAngularVelocity = Constants.Swerve.maxAngularVelocity / 3.0; // 2.0
 
     private final double rotationTolerance = 0.5; // degrees
     private final double roughRotatationTolerance = 1.5; // degrees
@@ -38,6 +39,7 @@ public class LocalSwerve extends LoggedCommandBase{
         this.m_swerve = m_swerve;
         this.targetPose = targetPose;
         this.precise = precise;
+        SmartDashboard.putBoolean("Precise?", precise);
         //addRequirements(m_swerve);
 
         xPID.setIZone(positionIZone); // Only use Integral term within this range
@@ -92,7 +94,7 @@ public class LocalSwerve extends LoggedCommandBase{
             new Translation2d(xVal, yVal).times(maxSpeed),
             rotationVal * maxAngularVelocity,
             true, true, false
-        );
+         );
     }
 
 }

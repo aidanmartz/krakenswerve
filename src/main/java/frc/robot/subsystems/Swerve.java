@@ -40,7 +40,7 @@ public class Swerve extends SubsystemBase {
     public boolean doRejectUpdate = false;
 
     // private final ReentrantLock swerveModLock = new ReentrantLock();
-    private final Notifier odoNotifier;
+    //private final Notifier odoNotifier;
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final Field2d field;
     private final Pigeon2 gyro;
@@ -73,9 +73,9 @@ public class Swerve extends SubsystemBase {
         );
 
         // Add support for Canivore and use 250 Hz
-        boolean isFastOdo = Constants.Swerve.isOnCANivore;
-        odoNotifier = new Notifier(this::updateSwerveOdom);
-        odoNotifier.startPeriodic(isFastOdo ? 1.0 / 250.0 : 1.0 / 50.0);       
+        // boolean isFastOdo = Constants.Swerve.isOnCANivore;
+        //odoNotifier = new Notifier(this::updateSwerveOdom);
+        //odoNotifier.startPeriodic(isFastOdo ? 1.0 / 250.0 : 1.0 / 50.0);       
        
         try {
             //RobotConfig config = RobotConfig.fromGUISettings();
@@ -266,7 +266,12 @@ public class Swerve extends SubsystemBase {
     }
 
     public void zeroHeading() {
-        setHeading(new Rotation2d());
+        if (Robot.isRed()) {
+            setHeading(new Rotation2d(Math.PI));
+        }
+        else {
+            setHeading(new Rotation2d());
+        }
     }
 
     public Rotation2d getGyroYaw() {
@@ -283,13 +288,7 @@ public class Swerve extends SubsystemBase {
                 this);
     }
 
-    public static String prettyPose(Pose2d pose) {
-        return String.format("(%01.2f, %01.2f @ %01.1f)", pose.getX(), pose.getY(), pose.getRotation().getDegrees());
-    }
 
-    private void updateSwerveOdom() { // function will be called 250 times a second
-        m_poseEstimator.update(getGyroYaw(), getModulePositions());
-    }
 
     @Override
     public void periodic() {
@@ -303,25 +302,24 @@ public class Swerve extends SubsystemBase {
        
         LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(),getYawRate(),0,0,0,0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-        SmartDashboard.putString("Limelight Pose ", LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight").pose.toString());
+        //SmartDashboard.putString("Limelight Pose ", LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight").pose.toString());
         
         Pose2d pose = getPose();
         field.setRobotPose(pose);   
 
-        SmartDashboard.putString("Pretty Pose", prettyPose(pose));
+        m_poseEstimator.update(getGyroYaw(), getModulePositions());
 
         if((Math.abs(gyro.getAngularVelocityZWorld().getValueAsDouble()) < 720) && mt2.tagCount > 0)
         {
-            m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+            //m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
             m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
         }
-
-        updateSwerveOdom();
 
         for (SwerveModule mod : mSwerveMods) {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
-        }
+        } 
+            
     }
 }
