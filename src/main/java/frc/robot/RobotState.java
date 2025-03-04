@@ -1,8 +1,12 @@
 package frc.robot;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutAngularVelocity;
+import edu.wpi.first.units.measure.MutCurrent;
 import edu.wpi.first.units.measure.MutDistance;
 
 import static edu.wpi.first.units.Units.*;
@@ -14,10 +18,16 @@ public class RobotState {
 
     private MutDistance elevatorPosition;
     private MutAngle pivotPosition;
+    private MutAngularVelocity intakeVelocity;
+    private MutCurrent intakeSupplyCurrent;
+    private MutCurrent intakeTorqueCurrent;
 
     private RobotState() {
         elevatorPosition = Inches.mutable(0);
         pivotPosition = Degrees.mutable(0);
+        intakeVelocity = DegreesPerSecond.mutable(0);
+        intakeSupplyCurrent = Amps.mutable(0);
+        intakeTorqueCurrent = Amps.mutable(0);
     }
 
     public static RobotState getMeasuredInstance() {
@@ -55,5 +65,17 @@ public class RobotState {
     
     public void updatePivotAngle(Angle position) {
         pivotPosition.mut_replace(position);
+    }
+
+    public AngularVelocity getIntakeVelocity(){
+        return intakeVelocity;
+    }
+
+    public Current getIntakeSupplyCurrent(){
+        return intakeSupplyCurrent;
+    }
+   
+    public Current getIntakeTorqueCurrent(){
+        return intakeTorqueCurrent;
     }
 }

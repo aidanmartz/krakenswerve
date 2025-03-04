@@ -18,6 +18,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOReal;
+
 import frc.robot.subsystems.ledSubsystem;
 import frc.robot.subsystems.dontuse_Elevator.Stop;
 import frc.robot.subsystems.elevator.Elevator;
@@ -60,7 +63,8 @@ public class RobotContainer {
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
     private final Elevator elevators;
-    //private final Pivot pivot;
+    private final Intake intake;
+    private final Pivot pivot;
     private final ledSubsystem m_led = new ledSubsystem();
 
     /**
@@ -69,10 +73,12 @@ public class RobotContainer {
     public RobotContainer() {
         if (Robot.isReal()) {
             this.elevators = new Elevator(new ElevatorIOReal());
-           // this.pivot = new Pivot(new PivotIOReal());
+            this.pivot = new Pivot(new PivotIOReal());
+            this.intake = new Intake(new IntakeIOReal());
         } else {
             this.elevators = new Elevator(new ElevatorIOSim());
-            // this.pivot = new Pivot(new PivotIOSim());
+            this.pivot = new Pivot(new PivotIOSim());
+            this.intake = new Intake(new IntakeIOReal()); //TODO SIM
         }
 
         for (ReefFace face: ReefFace.values()) {
@@ -129,7 +135,7 @@ public class RobotContainer {
             Commands.either(
                 Commands.select(alignLeftCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
                 Commands.select(pullAlgaeLeftCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
-                driver.povLeft()
+                intake::hasCoral
             )
         );
 
@@ -137,7 +143,7 @@ public class RobotContainer {
             Commands.either(
                 Commands.select(alignRightCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
                 Commands.select(pullAlgaeRightCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
-                driver.povLeft()
+                intake::hasCoral
             )
         );
 
@@ -166,7 +172,7 @@ public class RobotContainer {
     }
 
     // pullAlgae - aligns, elevates, turns on intake for time period since algae wont hit sensor, reverses bot some
-    private Command pullAlgae(ReefFace face, boolean left){
+    private Command pullAlgae(ReefFace face){
         // Check the map to see if the algae is L2 or L3
         Stop algaeHeight = face.algaeHigh ? Stop.L3_ALGAE : Stop.L2_ALGAE;
         return new LocalSwerve(s_Swerve, face.approachMiddle, true);
@@ -183,8 +189,8 @@ public class RobotContainer {
     private void setReefCommands(ReefFace face) {
         alignLeftCommands.put(face, scoreCoral(face, true));
         alignRightCommands.put(face, scoreCoral(face, false));
-        pullAlgaeLeftCommands.put(face, pullAlgae(face, true));
-        pullAlgaeRightCommands.put(face, pullAlgae(face, false));
+        pullAlgaeLeftCommands.put(face, pullAlgae(face));
+        pullAlgaeRightCommands.put(face, pullAlgae(face));
     }
 
     /**

@@ -93,11 +93,6 @@ public class Pivot extends SubsystemBase {
         if(edu.wpi.first.wpilibj.RobotState.isDisabled()) {
             this.io.stop();
         } else {
-            // LoggedTunableNumber.ifChanged(
-            //     hashCode(), () -> io.setPID(kP.get(), kI.get(), kD.get()), kP, kI, kD);
-
-            // LoggedTunableNumber.ifChanged(
-            //     hashCode(), () -> io.setFF(kS.get(), kG.get(), kV.get(), kA.get()), kS, kG, kV, kA);
             this.io.runSetpoint(this.setpoint);
         }
 
