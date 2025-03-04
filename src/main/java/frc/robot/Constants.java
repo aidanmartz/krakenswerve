@@ -67,11 +67,13 @@ public final class Constants {
         public static final double bumperWidth = Units.inchesToMeters(3);
         public static final double reefStandoff = Units.inchesToMeters(1.0);
         public static final double reefOffset = robotFrameLength / 2.0 + bumperWidth + reefStandoff;
-        public static final double reefExtraOffset = Units.inchesToMeters(16.0);
+        public static final double reefExtraOffset = Units.inchesToMeters(16.0); // reef wood to outside of tape line
         public static final double bonusStandoff = Units.inchesToMeters(4.0);
 
         // Locations from the Blue Alliance perspective
+        // 144-14+(93.5/2)
         public static final Translation2d reefCenter = new Translation2d(Units.inchesToMeters(176.75), fieldWidth / 2.0);
+        // center - distance from wall to face 176.75 - 144 = 36.75
         public static final double reefToFaceDistance = reefCenter.getX() - Units.inchesToMeters(144.0);
         public static final double branchSeparation = Units.inchesToMeters(12.0 + 15.0 / 16.0);
 
