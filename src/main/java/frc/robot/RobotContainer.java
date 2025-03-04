@@ -128,8 +128,8 @@ public class RobotContainer {
         driver.y().onTrue(elevators.moveTo(ElevatorStop.L3)
             .andThen(new InstantCommand(() -> m_led.setColor(Color.kMediumPurple))));
       //  .andThen(elevators.pivotTo(Pivots.Shoot)));
-       // bButton.onTrue(elevators.moveTo(ElevatorStop.L4)
-       //     .andThen(new InstantCommand(() -> m_led.setColor(Color.kWhite))));
+        driver.b().onTrue(elevators.moveTo(ElevatorStop.L4)
+            .andThen(new InstantCommand(() -> m_led.setColor(Color.kWhite))));
        // .andThen(elevators.pivotTo(Pivots.Shoot)));
         driver.leftBumper().whileTrue(
             Commands.either(
@@ -147,8 +147,10 @@ public class RobotContainer {
             )
         );
 
-       //startButton.whileTrue(pivot.pivotTo(Pivots.Intake));
-       //backButton.whileTrue(pivot.pivotTo(Pivots.Shoot));
+       driver.start().whileTrue(pivot.pivotTo(Pivots.Intake));
+       driver.back().whileTrue(pivot.pivotTo(Pivots.Down));
+       driver.leftStick().whileTrue(intake.setIntakeSpeed(0.5));
+       driver.leftStick().whileFalse(intake.setIntakeSpeed(0));
 
     }
 
