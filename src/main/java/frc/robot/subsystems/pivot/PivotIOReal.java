@@ -21,9 +21,9 @@ public class PivotIOReal implements PivotIO {
    
 
     private SparkFlex leader;
-    private SparkFlex follower;
+    //private SparkFlex follower;
     private SparkClosedLoopController closedLoopControllerPivotLeft;
-    private SparkClosedLoopController closedLoopControllerPivotRight;
+    //private SparkClosedLoopController closedLoopControllerPivotRight;
 
 
     public PivotIOReal() {
@@ -31,8 +31,8 @@ public class PivotIOReal implements PivotIO {
         leader = setupPivotSparkFlex(true, Constants.CANConstants.pivotLeftId);
         closedLoopControllerPivotLeft = leader.getClosedLoopController();
 
-        follower = setupPivotSparkFlex(false, Constants.CANConstants.pivotRightId);
-        closedLoopControllerPivotRight = follower.getClosedLoopController();
+        //follower = setupPivotSparkFlex(false, Constants.CANConstants.pivotRightId);
+        //closedLoopControllerPivotRight = follower.getClosedLoopController();
         
     }
             
@@ -57,26 +57,26 @@ public class PivotIOReal implements PivotIO {
     public void updateInputs(PivotIOInputs inputs) {
         
         inputs.position.mut_replace(leader.getAbsoluteEncoder().getPosition(), Degrees);
-        inputs.velocity.mut_replace(leader.getAbsoluteEncoder().getVelocity(), DegreesPerSecond);
+        //inputs.velocity.mut_replace(leader.getAbsoluteEncoder().getVelocity(), DegreesPerSecond);
 
         inputs.appliedVoltsLeader.mut_replace(leader.getBusVoltage(), Volts);
-        inputs.appliedVoltsFollower.mut_replace(follower.getBusVoltage(), Volts);
+        //inputs.appliedVoltsFollower.mut_replace(follower.getBusVoltage(), Volts);
 
         inputs.supplyCurrentLeader.mut_replace(leader.getOutputCurrent(), Amps);
-        inputs.supplyCurrentFollower.mut_replace(follower.getOutputCurrent(), Amps);
+        //inputs.supplyCurrentFollower.mut_replace(follower.getOutputCurrent(), Amps);
 
         inputs.torqueCurrentLeader.mut_replace(leader.getOutputCurrent(), Amps);
-        inputs.torqueCurrentFollower.mut_replace(follower.getOutputCurrent(), Amps);
+        //inputs.torqueCurrentFollower.mut_replace(follower.getOutputCurrent(), Amps);
 
         inputs.temperatureLeader.mut_replace(leader.getMotorTemperature(), Celsius);
-        inputs.temperatureFollower.mut_replace(follower.getMotorTemperature(), Celsius);
+        //inputs.temperatureFollower.mut_replace(follower.getMotorTemperature(), Celsius);
     }
 
     @Override
     public void runSetpoint(Angle position) {
         double setpoint = position.in(Degree);
         closedLoopControllerPivotLeft.setReference(setpoint, SparkFlex.ControlType.kPosition);
-        closedLoopControllerPivotRight.setReference(setpoint, SparkFlex.ControlType.kPosition); 
+        //closedLoopControllerPivotRight.setReference(setpoint, SparkFlex.ControlType.kPosition); 
     }
 
     @Override

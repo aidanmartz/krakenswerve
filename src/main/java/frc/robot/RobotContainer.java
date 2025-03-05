@@ -16,15 +16,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
+
 import frc.robot.commands.*;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOReal;
 
 import frc.robot.subsystems.ledSubsystem;
-import frc.robot.subsystems.dontuse_Elevator.Stop;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -69,6 +67,8 @@ public class RobotContainer {
     private final Pivot pivot;
     private final ledSubsystem m_led = new ledSubsystem();
 
+    public ElevatorStop requestedStop = ElevatorStop.INTAKE;
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -101,6 +101,7 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
+        /* 
         NamedCommands.registerCommand("Shoot L4", ShootCoral(ElevatorStop.L4));
         NamedCommands.registerCommand("Shoot L3", ShootCoral(ElevatorStop.L3));
         NamedCommands.registerCommand("Shoot L2", ShootCoral(ElevatorStop.L2));
@@ -108,55 +109,30 @@ public class RobotContainer {
         NamedCommands.registerCommand("Go to intake", feed());
         NamedCommands.registerCommand("Intake In", intake.setIntakeSpeed(-0.4));
         NamedCommands.registerCommand("Intake Out", intake.setIntakeSpeed(0.4));
-
+```
+        NamedCommands.registerCommand("Pivot Up", pivot.pivotTo(Pivots.Up));
+        NamedCommands.registerCommand("Pivot Down", pivot.pivotTo(Pivots.Down));
+        NamedCommands.registerCommand("Pivot Shoot", pivot.pivotTo(Pivots.Shoot));
+        NamedCommands.registerCommand("Pivot Intake", pivot.pivotTo(Pivots.Intake));
+        */
     }
 
-    /**
-     * Use this method to define your button->command mappings. Buttons can be
-     * created by
-     * instantiating a {@link GenericHID} or one of its subclasses ({@link
-     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-     * it to a {@link
-     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-     */
+
     private void configureButtonBindings() {
         /* Driver Buttons */
 
-
-        driver.povUp().onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
-
-        //driver.rightBumper().whileTrue(new InstantCommand(() -> m_led.setRGB(255, 255, 255)));
-        
+        driver.povUp().onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));        
         driver.povDown().onTrue(s_Swerve.resetModulesToAbsolute());
 
-        driver.a().onTrue(ShootCoral(ElevatorStop.L1));
-        driver.x().onTrue(ShootCoral(ElevatorStop.L2));
-        driver.y().onTrue(ShootCoral(ElevatorStop.L3));
-        driver.b().onTrue(ShootCoral(ElevatorStop.L4));
+        driver.a().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L1)));
+        driver.x().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L2)));
+        driver.y().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L3)));
+        driver.b().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L4)));
 
-        driver.leftBumper().onTrue(feed());
+        driver.start().onTrue(feed());
 
-
-        /*driver.leftBumper().whileTrue(
-            Commands.either(
-                Commands.select(alignLeftCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
-                Commands.select(pullAlgaeLeftCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
-                intake::hasCoral
-            )
-        );*/
-
-        driver.rightBumper().whileTrue(
-            Commands.either(
-                Commands.select(alignRightCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
-                Commands.select(pullAlgaeRightCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
-                intake::hasCoral
-            )
-        );
-
-       driver.start().whileTrue(pivot.pivotTo(Pivots.Intake));
-       driver.back().whileTrue(pivot.pivotTo(Pivots.Down));
-       driver.rightStick().whileTrue(pivot.pivotTo(Pivots.Up));
-       driver.leftStick().whileTrue(pivot.pivotTo(Pivots.Shoot));
+        driver.leftBumper().onTrue(alignLeft());
+        driver.rightBumper().onTrue(alignRight());
 
     }
 
@@ -167,42 +143,68 @@ public class RobotContainer {
      * in 1 spot
      */
 
-    
-    // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
-    private Command feed() {
-        return intake.setIntakeSpeed(0.0)
-        .andThen(elevators.moveTo(ElevatorStop.INTAKE))
-        .andThen(new WaitCommand(1.0))
-        .andThen(pivot.pivotTo(Pivots.Intake))
-        .andThen(intake.setIntakeSpeed(-0.4));
-    }
-    // scoreCoral - aligns, elevates, ensure proper position, outtake, waits for empty, stop intake, pivot up, lowers to safe, pivot to feed 
-    private Command scoreCoral(ReefFace face, boolean left) {
-        return new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, true);
-        //return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
+    private Command alignReef(ReefFace face, boolean left) {
+        return Commands.sequence(
+            pivot.pivotTo(Pivots.Down),
+            new WaitCommand(0.5),
+            Commands.either(
+                Commands.sequence( // score
+                    new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, false),
+                    elevators.moveTo(requestedStop),
+                    new LocalSwerve(s_Swerve, left ? face.alignLeft : face.alignRight, true)
+                ),
+                Commands.sequence( // remove algae
+                    new LocalSwerve(s_Swerve, face.approachMiddle, false),
+                    new LocalSwerve(s_Swerve, face.alignMiddle, true),
+                    elevators.moveTo(ElevatorStop.L4)
+                ),
+                intake::hasCoral
+            ),
+            ShootCoral()
+        );
     }
 
-    private Command ShootCoral(ElevatorStop stop){
+    private Command alignLeft(){
+        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), true);
+    }
+
+    private Command alignRight(){
+        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), false);
+    }
+
+    private void setStop(ElevatorStop stop){
+        requestedStop = stop;
+        SmartDashboard.putString("Elevator Stop", requestedStop.toString());
+    }
+
+    // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
+    private Command feed() {
+        return pivot.pivotTo(Pivots.Up)
+            .andThen(new WaitCommand(0.5))
+            .andThen(elevators.moveTo(ElevatorStop.INTAKE))
+            .andThen(new WaitCommand(0.5))
+            .andThen(pivot.pivotTo(Pivots.Intake))
+            .andThen(intake.setIntakeSpeed(-0.2));
+    }
+
+    // scoreCoral - aligns, elevates, ensure proper position, outtake, waits for empty, stop intake, pivot up, lowers to safe, pivot to feed 
+
+    private Command ShootCoral(){
         return pivot.pivotTo(Pivots.Shoot)
-        .andThen(new InstantCommand(() -> m_led.setColor(Color.kSkyBlue)))
-        .andThen(new WaitCommand(1.0))
-        .andThen(elevators.moveTo(stop))
-        .andThen(new WaitCommand(1.0))
-        .andThen(intake.setIntakeSpeed(0.2))
-        .andThen(new WaitCommand(1.0))
-        .andThen(intake.setIntakeSpeed(0.0))
-        .andThen(elevators.moveTo(ElevatorStop.L1))
-        .andThen(feed()); 
+            .andThen(new InstantCommand(() -> m_led.setColor(Color.kSkyBlue)))
+            .andThen(intake.setIntakeSpeed(0.2))
+            .andThen(new WaitCommand(0.5))
+            .andThen(intake.setIntakeSpeed(0.0))
+            .andThen(feed()); 
    
     }
 
     // pullAlgae - aligns, elevates, turns on intake for time period since algae wont hit sensor, reverses bot some
     private Command pullAlgae(ReefFace face){
         // Check the map to see if the algae is L2 or L3
-        Stop algaeHeight = face.algaeHigh ? Stop.L3_ALGAE : Stop.L2_ALGAE;
-        return new LocalSwerve(s_Swerve, face.approachMiddle, true);
+        ElevatorStop algaeHeight = face.algaeHigh ? ElevatorStop.L3_ALGAE : ElevatorStop.L2_ALGAE;
 
-        //return new InstantCommand(() -> m_led.setColor(Color.kGreen));
+        return new LocalSwerve(s_Swerve, face.approachMiddle, true);
     }
 
     // scoreBarge - elevates to max, move forward?, reverse intake, back up?, lower elevator, pivot to feed
@@ -210,11 +212,10 @@ public class RobotContainer {
         return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
     }
 
-
     // Setup basic last foot options
     private void setReefCommands(ReefFace face) {
-        alignLeftCommands.put(face, scoreCoral(face, true));
-        alignRightCommands.put(face, scoreCoral(face, false));
+        alignLeftCommands.put(face, alignReef(face, true));
+        alignRightCommands.put(face, alignReef(face, false));
         pullAlgaeLeftCommands.put(face, pullAlgae(face));
         pullAlgaeRightCommands.put(face, pullAlgae(face));
     }
@@ -227,4 +228,5 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
     }
+
 }

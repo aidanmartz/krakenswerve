@@ -29,7 +29,7 @@ public class IntakeIOReal implements IntakeIO {
 
         // Brake mode
         intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
+        
         // Make sure current limiting is enabled
         intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
