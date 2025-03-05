@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Robot;
 
@@ -68,6 +69,13 @@ public class IntakeIOReal implements IntakeIO {
     @Override
     public void setSpeed(double speed){
         intakeMotor.set(speed);
+    }
+
+    public void periodic() {
+        SmartDashboard.putNumber("intake/motor voltage", intakeMotor.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("intake/motor supply current", intakeMotor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("intake/motor torque current", intakeMotor.getTorqueCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("intake/motor temp", intakeMotor.getDeviceTemp().getValueAsDouble());        
     }
 
 }
