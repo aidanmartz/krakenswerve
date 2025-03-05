@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -100,6 +101,14 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
+
+        NamedCommands.registerCommand("Shoot L4", ShootCoral(ElevatorStop.L4));
+        NamedCommands.registerCommand("Shoot L3", ShootCoral(ElevatorStop.L3));
+        NamedCommands.registerCommand("Shoot L2", ShootCoral(ElevatorStop.L2));
+        NamedCommands.registerCommand("Shoot L1", ShootCoral(ElevatorStop.L1));
+        NamedCommands.registerCommand("Go to intake", feed());
+
+
     }
 
     /**
@@ -203,6 +212,7 @@ public class RobotContainer {
     private Command scoreBarge() {
         return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
     }
+
 
     // Setup basic last foot options
     private void setReefCommands(ReefFace face) {
