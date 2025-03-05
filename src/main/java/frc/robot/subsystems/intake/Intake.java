@@ -70,6 +70,5 @@ public class Intake extends SubsystemBase{
         super.periodic();
         this.io.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
-    
     }
 }
