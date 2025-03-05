@@ -101,6 +101,14 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
+        NamedCommands.registerCommand("Shoot L4", ShootCoral(ElevatorStop.L4));
+        NamedCommands.registerCommand("Shoot L3", ShootCoral(ElevatorStop.L3));
+        NamedCommands.registerCommand("Shoot L2", ShootCoral(ElevatorStop.L2));
+        NamedCommands.registerCommand("Shoot L1", ShootCoral(ElevatorStop.L1));
+        NamedCommands.registerCommand("Go to intake", feed());
+        NamedCommands.registerCommand("Intake In", intake.setIntakeSpeed(-0.4));
+        NamedCommands.registerCommand("Intake Out", intake.setIntakeSpeed(0.4));
+
     }
 
     /**
