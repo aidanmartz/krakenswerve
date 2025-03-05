@@ -68,13 +68,13 @@ public class Elevator extends SubsystemBase {
     };
 
     private final EnumMap<ElevatorStop, Distance> elevatorHeights = new EnumMap<>(Map.ofEntries(
-            Map.entry(ElevatorStop.INTAKE, Inches.of(0.1)),
+            Map.entry(ElevatorStop.INTAKE, Inches.of(0.5)),
             Map.entry(ElevatorStop.L1, Inches.of(3.0)),
-            Map.entry(ElevatorStop.L2, Inches.of(6.0)),
+            Map.entry(ElevatorStop.L2, Inches.of(8.0)),
             Map.entry(ElevatorStop.L2_ALGAE, Inches.of(13.0)),
-            Map.entry(ElevatorStop.L3, Inches.of(11.5)),
+            Map.entry(ElevatorStop.L3, Inches.of(13.5)),
             Map.entry(ElevatorStop.L3_ALGAE, Inches.of(18.0)),
-            Map.entry(ElevatorStop.L4, Inches.of(20.0))  //19.5
+            Map.entry(ElevatorStop.L4, Inches.of(22.0))  //19.5
         ));
 
 

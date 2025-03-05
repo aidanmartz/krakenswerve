@@ -32,7 +32,7 @@ public final class Constants {
         public static final int pivotRightId = 21;
         public static final int elevatorLeftId = 30;
         public static final int elevatorRightId = 31;
-        public static final int intakeId = 41;
+        public static final int intakeId = 40;
         public static final String canBus = "rio";
     }
 

@@ -54,7 +54,8 @@ public class ElevatorIOReal implements ElevatorIO {
                 .idleMode(IdleMode.kBrake);
                 config.encoder
                 .positionConversionFactor(1)
-                .velocityConversionFactor(1);
+                .velocityConversionFactor(0.1);
+                
                 config.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .pid(0.1, 0.0, 0.0);
@@ -106,6 +107,7 @@ public class ElevatorIOReal implements ElevatorIO {
         elevatorLeft.setVoltage(volts);
         elevatorRight.setVoltage(volts);
     }
+
     /*
     public void runCurrent(Current current) {}
     public void setBrakeMode(boolean enabled) {}

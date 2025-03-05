@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -119,25 +120,21 @@ public class RobotContainer {
         
         driver.povDown().onTrue(s_Swerve.resetModulesToAbsolute());
 
-        driver.a().onTrue(elevators.moveTo(ElevatorStop.L1)
-            .andThen(new InstantCommand(() -> m_led.setColor(Color.kSkyBlue))));
-       // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        driver.x().onTrue(elevators.moveTo(ElevatorStop.L2)
-            .andThen(new InstantCommand(() -> m_led.setColor(Color.kBlueViolet))));
-       // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        driver.y().onTrue(elevators.moveTo(ElevatorStop.L3)
-            .andThen(new InstantCommand(() -> m_led.setColor(Color.kMediumPurple))));
-      //  .andThen(elevators.pivotTo(Pivots.Shoot)));
-        driver.b().onTrue(elevators.moveTo(ElevatorStop.L4)
-            .andThen(new InstantCommand(() -> m_led.setColor(Color.kWhite))));
-       // .andThen(elevators.pivotTo(Pivots.Shoot)));
-        driver.leftBumper().whileTrue(
+        driver.a().onTrue(ShootCoral(ElevatorStop.L1));
+        driver.x().onTrue(ShootCoral(ElevatorStop.L2));
+        driver.y().onTrue(ShootCoral(ElevatorStop.L3));
+        driver.b().onTrue(ShootCoral(ElevatorStop.L4));
+
+        driver.leftBumper().onTrue(feed());
+
+
+        /*driver.leftBumper().whileTrue(
             Commands.either(
                 Commands.select(alignLeftCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
                 Commands.select(pullAlgaeLeftCommands, () -> Swerve.nearestFace(s_Swerve.getPose().getTranslation())),
                 intake::hasCoral
             )
-        );
+        );*/
 
         driver.rightBumper().whileTrue(
             Commands.either(
@@ -149,8 +146,11 @@ public class RobotContainer {
 
        driver.start().whileTrue(pivot.pivotTo(Pivots.Intake));
        driver.back().whileTrue(pivot.pivotTo(Pivots.Down));
-       driver.leftStick().whileTrue(intake.setIntakeSpeed(0.5));
-       driver.leftStick().whileFalse(intake.setIntakeSpeed(0));
+       driver.rightStick().whileTrue(pivot.pivotTo(Pivots.Up));
+       driver.leftStick().whileTrue(pivot.pivotTo(Pivots.Shoot));
+
+       //driver.leftStick().whileTrue(intake.setIntakeSpeed(0.5));
+       //driver.leftStick().whileFalse(intake.setIntakeSpeed(0));
 
     }
 
@@ -163,14 +163,31 @@ public class RobotContainer {
 
     
     // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
-    private Command feed(ReefFace face, boolean left) {
-        return new InstantCommand(() -> m_led.setColor(Color.kCoral));
+    private Command feed() {
+        return intake.setIntakeSpeed(0.0)
+        .andThen(elevators.moveTo(ElevatorStop.INTAKE))
+        .andThen(new WaitCommand(1.0))
+        .andThen(pivot.pivotTo(Pivots.Intake))
+        .andThen(intake.setIntakeSpeed(-0.4));
     }
-
     // scoreCoral - aligns, elevates, ensure proper position, outtake, waits for empty, stop intake, pivot up, lowers to safe, pivot to feed 
     private Command scoreCoral(ReefFace face, boolean left) {
         return new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, true);
         //return new InstantCommand(() -> m_led.setColors(Color.kBlue, Color.kGreen));
+    }
+
+    private Command ShootCoral(ElevatorStop stop){
+        return pivot.pivotTo(Pivots.Shoot)
+        .andThen(new InstantCommand(() -> m_led.setColor(Color.kSkyBlue)))
+        .andThen(new WaitCommand(1.0))
+        .andThen(elevators.moveTo(stop))
+        .andThen(new WaitCommand(1.0))
+        .andThen(intake.setIntakeSpeed(0.2))
+        .andThen(new WaitCommand(1.0))
+        .andThen(intake.setIntakeSpeed(0.0))
+        .andThen(elevators.moveTo(ElevatorStop.L1))
+        .andThen(feed()); 
+   
     }
 
     // pullAlgae - aligns, elevates, turns on intake for time period since algae wont hit sensor, reverses bot some
