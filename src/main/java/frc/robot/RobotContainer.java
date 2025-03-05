@@ -149,9 +149,6 @@ public class RobotContainer {
        driver.rightStick().whileTrue(pivot.pivotTo(Pivots.Up));
        driver.leftStick().whileTrue(pivot.pivotTo(Pivots.Shoot));
 
-       //driver.leftStick().whileTrue(intake.setIntakeSpeed(0.5));
-       //driver.leftStick().whileFalse(intake.setIntakeSpeed(0));
-
     }
 
     /*  

@@ -40,9 +40,6 @@ public class Elevator extends SubsystemBase {
     private final RobotState target;
     private final RobotState goal;
 
-    //Pivot pivot = new Pivot(null);
-
-
     public Elevator(ElevatorIO io) {
         this.io = io;
         this.io.setPID(kP.get(), kI.get(), kD.get());
@@ -77,16 +74,16 @@ public class Elevator extends SubsystemBase {
             Map.entry(ElevatorStop.L4, Inches.of(22.0))  //19.5
         ));
 
-
     public Command moveTo(ElevatorStop stop) {
-        //if (pivot.pivotSafe()){
-            return Commands.runOnce(() -> {
-                this.setpoint = elevatorHeights.get(stop);
-            });
-        //}
-        //else{
-        //    return Commands.waitUntil(() -> pivot.pivotSafe());
-        //}
+        // Move up
+        if (this.inputs.position.lt(elevatorHeights.get(stop))){
+            this.io.runVolts(Volts.of(6));
+        }
+        // Move down slower
+        else{
+            this.io.runVolts(Volts.of(2));
+        }
+        return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(stop));
     }
 
     public Command waitForGreaterThanPosition(Distance position) {
