@@ -68,10 +68,10 @@ public class Pivot extends SubsystemBase {
 
     // geared at 25:1
     private final EnumMap<Pivots, Angle> pivotsPos = new EnumMap<>(Map.ofEntries(
-            Map.entry(Pivots.Intake, Degrees.of(14.5)), //7.5
+            Map.entry(Pivots.Intake, Degrees.of(15.5)), //7.5
             Map.entry(Pivots.Up, Degrees.of(10)), //11
-            Map.entry(Pivots.Shoot, Degrees.of(3)), //18
-            Map.entry(Pivots.Down, Degrees.of(0))));
+            Map.entry(Pivots.Shoot, Degrees.of(5)), //18
+            Map.entry(Pivots.Down, Degrees.of(1.5))));
 
     
     public Command pivotTo(Pivots pivot) {

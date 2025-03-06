@@ -166,12 +166,12 @@ public final class Constants {
         public static final int angleCurrentLimit = 30;
         public static final int angleCurrentThreshold = 40;
         public static final double angleCurrentThresholdTime = 0.1;
-        public static final boolean angleEnableCurrentLimit = true;
+        public static final boolean angleEnableCurrentLimit = false;
 
         public static final int driveCurrentLimit = 40;
         public static final int driveCurrentThreshold = 60;
         public static final double driveCurrentThresholdTime = 0.1;
-        public static final boolean driveEnableCurrentLimit = true;
+        public static final boolean driveEnableCurrentLimit = false;
 
         /*
          * These values are used by the drive falcon to ramp in open loop and closed
@@ -219,8 +219,8 @@ public final class Constants {
          */
 
         /** Radians per Second */
-        //public static final double maxAngularVelocity = 10.0; 
-        public static final double maxAngularVelocity = Math.hypot(wheelBase, trackWidth) / 2;
+        public static final double maxAngularVelocity = 10.0; 
+        //public static final double maxAngularVelocity = Math.hypot(wheelBase, trackWidth) / 2;
 
         /* Neutral Modes */
         public static final NeutralModeValue angleNeutralMode = NeutralModeValue.Coast;

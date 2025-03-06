@@ -1,5 +1,6 @@
 package frc.robot;
 
+import java.lang.annotation.ElementType;
 import java.util.EnumMap;
 import java.util.function.Supplier;
 
@@ -66,8 +67,7 @@ public class RobotContainer {
     private final Intake intake;
     private final Pivot pivot;
     private final ledSubsystem m_led = new ledSubsystem();
-
-    public ElevatorStop requestedStop = ElevatorStop.INTAKE;
+    public boolean leftSide;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -87,6 +87,8 @@ public class RobotContainer {
             setReefCommands(face);
         }
        
+        leftSide = true;
+
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -124,15 +126,21 @@ public class RobotContainer {
         driver.povUp().onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));        
         driver.povDown().onTrue(s_Swerve.resetModulesToAbsolute());
 
-        driver.a().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L1)));
+       /*  driver.a().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L1)));
         driver.x().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L2)));
         driver.y().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L3)));
-        driver.b().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L4)));
+        driver.b().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L4))); */
+
+        driver.a().onTrue(align(ElevatorStop.L1));
+        driver.x().onTrue(align(ElevatorStop.L2));
+        driver.y().onTrue(align(ElevatorStop.L3));
+        driver.b().onTrue(align(ElevatorStop.L4));
 
         driver.start().onTrue(feed());
 
-        driver.leftBumper().onTrue(alignLeft());
-        driver.rightBumper().onTrue(alignRight());
+        driver.leftBumper().onTrue(new InstantCommand(() -> setSide(true)));
+        driver.rightBumper().onTrue(new InstantCommand(() -> setSide(false)));
+  
 
     }
 
@@ -143,19 +151,21 @@ public class RobotContainer {
      * in 1 spot
      */
 
-    private Command alignReef(ReefFace face, boolean left) {
+    private Command alignReef(ReefFace face, boolean left, ElevatorStop stop) {
+
         return Commands.sequence(
             pivot.pivotTo(Pivots.Down),
             new WaitCommand(0.5),
             Commands.either(
                 Commands.sequence( // score
-                    new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, false),
-                    elevators.moveTo(requestedStop),
-                    new LocalSwerve(s_Swerve, left ? face.alignLeft : face.alignRight, true)
+                    //new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, false),
+                    elevators.moveTo(stop),
+                    new WaitCommand(1.5)
+                    //new LocalSwerve(s_Swerve, left ? face.alignLeft : face.alignRight, true)
                 ),
                 Commands.sequence( // remove algae
-                    new LocalSwerve(s_Swerve, face.approachMiddle, false),
-                    new LocalSwerve(s_Swerve, face.alignMiddle, true),
+                    //new LocalSwerve(s_Swerve, face.approachMiddle, false),
+                    //new LocalSwerve(s_Swerve, face.alignMiddle, true),
                     elevators.moveTo(ElevatorStop.L4)
                 ),
                 intake::hasCoral
@@ -164,25 +174,25 @@ public class RobotContainer {
         );
     }
 
-    private Command alignLeft(){
-        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), true);
+    
+    private Command align(ElevatorStop stop){
+        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), leftSide, stop);
+    }
+
+    private Command alignLeft(ElevatorStop stop){
+        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), true, stop);
     }
 
     private Command alignRight(){
-        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), false);
+        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), false, ElevatorStop.L1);
     }
 
-    private void setStop(ElevatorStop stop){
-        requestedStop = stop;
-        SmartDashboard.putString("Elevator Stop", requestedStop.toString());
-    }
+
 
     // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
     private Command feed() {
-        return pivot.pivotTo(Pivots.Up)
-            .andThen(new WaitCommand(0.5))
-            .andThen(elevators.moveTo(ElevatorStop.INTAKE))
-            .andThen(new WaitCommand(0.5))
+        return elevators.moveTo(ElevatorStop.INTAKE)
+            .andThen(new WaitCommand(1.5))
             .andThen(pivot.pivotTo(Pivots.Intake))
             .andThen(intake.setIntakeSpeed(-0.2));
     }
@@ -191,10 +201,13 @@ public class RobotContainer {
 
     private Command ShootCoral(){
         return pivot.pivotTo(Pivots.Shoot)
-            .andThen(new InstantCommand(() -> m_led.setColor(Color.kSkyBlue)))
+            .andThen(new WaitCommand(0.5))
+            .andThen(new InstantCommand(() -> m_led.setColor(Color.kPurple)))
             .andThen(intake.setIntakeSpeed(0.2))
             .andThen(new WaitCommand(0.5))
             .andThen(intake.setIntakeSpeed(0.0))
+            .andThen(pivot.pivotTo(Pivots.Up))
+            .andThen(new WaitCommand(0.5))
             .andThen(feed()); 
    
     }
@@ -214,10 +227,12 @@ public class RobotContainer {
 
     // Setup basic last foot options
     private void setReefCommands(ReefFace face) {
-        alignLeftCommands.put(face, alignReef(face, true));
-        alignRightCommands.put(face, alignReef(face, false));
         pullAlgaeLeftCommands.put(face, pullAlgae(face));
         pullAlgaeRightCommands.put(face, pullAlgae(face));
+    }
+
+    public void setSide(boolean left){
+        leftSide = left;
     }
 
     /**

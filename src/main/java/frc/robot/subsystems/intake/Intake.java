@@ -59,7 +59,7 @@ public class Intake extends SubsystemBase{
     }
 
     public boolean hasCoral(){
-        if(this.inputs.supplyCurrent.gt(Amps.of(20))){
+        if(this.inputs.supplyCurrent.gt(Amps.of(4))){
             return true;
         }
         return false;
@@ -71,5 +71,10 @@ public class Intake extends SubsystemBase{
         this.io.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
         SmartDashboard.putBoolean("Has Coral?", this.hasCoral());
+        SmartDashboard.putString("intake/motor voltage", this.inputs.appliedVolts.toString());
+        SmartDashboard.putString("intake/motor supply current", this.inputs.supplyCurrent.toString());
+        SmartDashboard.putString("intake/motor torque current", this.inputs.torqueCurrent.toString());
+        SmartDashboard.putString("intake/motor temp", this.inputs.temperature.toString());        
+
     }
 }

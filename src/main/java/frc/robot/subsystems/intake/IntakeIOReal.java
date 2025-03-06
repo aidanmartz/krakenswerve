@@ -34,10 +34,10 @@ public class IntakeIOReal implements IntakeIO {
         intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Limit the current to the intake to max 70A
-        intakeConfig.CurrentLimits.SupplyCurrentLimit = 70;
+        intakeConfig.CurrentLimits.SupplyCurrentLimit = 10;
 
         // Wait for time at limit then lower the limit - useful to not brownout 
-        intakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+        intakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 8;
         
         // How long to wait before throttling
         intakeConfig.CurrentLimits.SupplyCurrentLowerTime = 0.5;
@@ -72,10 +72,6 @@ public class IntakeIOReal implements IntakeIO {
     }
 
     public void periodic() {
-        SmartDashboard.putNumber("intake/motor voltage", intakeMotor.getSupplyVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("intake/motor supply current", intakeMotor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("intake/motor torque current", intakeMotor.getTorqueCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("intake/motor temp", intakeMotor.getDeviceTemp().getValueAsDouble());        
     }
 
 }
