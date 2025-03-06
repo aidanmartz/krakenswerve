@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 import frc.robot.subsystems.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class LocalSwerve extends LoggedCommandBase{
@@ -36,10 +37,12 @@ public class LocalSwerve extends LoggedCommandBase{
 
         targetPose = Swerve.flipIfRed(targetPose);
 
+
         this.m_swerve = m_swerve;
         this.targetPose = targetPose;
         this.precise = precise;
         SmartDashboard.putBoolean("Precise?", precise);
+        SmartDashboard.putString("target pose", targetPose.toString());
         //addRequirements(m_swerve);
 
         xPID.setIZone(positionIZone); // Only use Integral term within this range
