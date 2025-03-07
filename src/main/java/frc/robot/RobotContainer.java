@@ -83,6 +83,9 @@ public class RobotContainer {
             this.intake = new Intake(new IntakeIOReal()); //TODO SIM
         }
 
+        // set color at startup
+        m_led.setColor(Robot.isRed() ? Color.kRed : Color.kBlue);
+
         for (ReefFace face: ReefFace.values()) {
             setReefCommands(face);
         }
@@ -126,21 +129,21 @@ public class RobotContainer {
         driver.povUp().onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));        
         driver.povDown().onTrue(s_Swerve.resetModulesToAbsolute());
 
-       /*  driver.a().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L1)));
-        driver.x().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L2)));
-        driver.y().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L3)));
-        driver.b().onTrue(new InstantCommand(() -> setStop(ElevatorStop.L4))); */
-
-        driver.a().onTrue(align(ElevatorStop.L1));
-        driver.x().onTrue(align(ElevatorStop.L2));
-        driver.y().onTrue(align(ElevatorStop.L3));
-        driver.b().onTrue(align(ElevatorStop.L4));
+        driver.a().onTrue(new InstantCommand(() -> elevators.setNextStop(ElevatorStop.L1)));
+        driver.x().onTrue(new InstantCommand(() -> elevators.setNextStop(ElevatorStop.L2)));
+        driver.y().onTrue(new InstantCommand(() -> elevators.setNextStop(ElevatorStop.L3)));
+        driver.b().onTrue(new InstantCommand(() -> elevators.setNextStop(ElevatorStop.L4))); 
+        driver.leftBumper().onTrue(alignLeftNextStop());
+        driver.rightBumper().onTrue(alignRightNextStop());        
+        
+        // driver.a().onTrue(align(ElevatorStop.L1));
+        // driver.x().onTrue(align(ElevatorStop.L2));
+        // driver.y().onTrue(align(ElevatorStop.L3));
+        // driver.b().onTrue(align(ElevatorStop.L4));
+        // driver.leftBumper().onTrue(new InstantCommand(() -> setSide(true)));
+        // driver.rightBumper().onTrue(new InstantCommand(() -> setSide(false)));
 
         driver.start().onTrue(feed());
-
-        driver.leftBumper().onTrue(new InstantCommand(() -> setSide(true)));
-        driver.rightBumper().onTrue(new InstantCommand(() -> setSide(false)));
-  
 
     }
 
@@ -166,7 +169,7 @@ public class RobotContainer {
                 Commands.sequence( // remove algae
                     //new LocalSwerve(s_Swerve, face.approachMiddle, false),
                     //new LocalSwerve(s_Swerve, face.alignMiddle, true),
-                    elevators.moveTo(ElevatorStop.L4)
+                    elevators.moveToNext()
                 ),
                 intake::hasCoral
             ),
@@ -175,19 +178,26 @@ public class RobotContainer {
     }
 
     
-    private Command align(ElevatorStop stop){
-        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), leftSide, stop);
+    // left side, backward compatibility
+    private Command align(ElevatorStop stop) {
+        return alignLeft(stop);
     }
 
-    private Command alignLeft(ElevatorStop stop){
+    private Command alignLeft(ElevatorStop stop) {
         return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), true, stop);
     }
 
-    private Command alignRight(){
-        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), false, ElevatorStop.L1);
+    private Command alignRight(ElevatorStop stop) {
+        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), false, stop);
     }
-
-
+    
+    private Command alignLeftNextStop() {
+        return alignLeft(elevators.getNextStop());
+    }
+    
+    private Command alignRightNextStop() {
+        return alignRight(elevators.getNextStop());
+    }
 
     // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
     private Command feed() {
@@ -198,20 +208,22 @@ public class RobotContainer {
     }
 
     // scoreCoral - aligns, elevates, ensure proper position, outtake, waits for empty, stop intake, pivot up, lowers to safe, pivot to feed 
-
-    private Command ShootCoral(){
+    private Command ShootCoral() {
         return pivot.pivotTo(Pivots.Shoot)
             .andThen(new WaitCommand(0.5))
-            .andThen(new InstantCommand(() -> m_led.setColor(Color.kPurple)))
+            .andThen(colorCommand(Color.kPurple))
             .andThen(intake.setIntakeSpeed(0.2))
             .andThen(new WaitCommand(0.5))
             .andThen(intake.setIntakeSpeed(0.0))
             .andThen(pivot.pivotTo(Pivots.Up))
             .andThen(new WaitCommand(0.5))
             .andThen(feed()); 
-   
     }
 
+    private Command colorCommand(Color acolor) {
+        return new InstantCommand(() -> m_led.setColor(acolor));
+    }
+    
     // pullAlgae - aligns, elevates, turns on intake for time period since algae wont hit sensor, reverses bot some
     private Command pullAlgae(ReefFace face){
         // Check the map to see if the algae is L2 or L3

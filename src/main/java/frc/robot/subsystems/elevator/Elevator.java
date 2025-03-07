@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.subsystems.pivot.*;
+//import frc.robot.subsystems.pivot.*;
 import frc.robot.util.LoggedTunableNumber;
 
 import static edu.wpi.first.units.Units.*;
@@ -51,6 +51,7 @@ public class Elevator extends SubsystemBase {
         this.actual = RobotState.getMeasuredInstance();
         this.target = RobotState.getDesiredInstance();
         this.goal = RobotState.getGoalInstance();
+        this.nextStop = ElevatorStop.L4; 
 
         measuredVisualizer = new ElevatorVisualizer("Measured", Color.kBlack);
         goalVisualizer = new ElevatorVisualizer("Goal", Color.kBlue);
@@ -92,11 +93,14 @@ public class Elevator extends SubsystemBase {
 
 
     public Command moveToNext() {
-          return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(nextStop));
-      }
+        return moveTo(this.nextStop);
+    }
 
-    public void nextStop(ElevatorStop stop){
-        nextStop = stop;
+    public void setNextStop(ElevatorStop stop) {
+        this.nextStop = stop;
+    }
+    public ElevatorStop getNextStop() {
+        return this.nextStop;
     }
 
     public Command waitForGreaterThanPosition(Distance position) {
@@ -126,6 +130,8 @@ public class Elevator extends SubsystemBase {
         actual.updateElevatorPosition(this.inputs.position);
         target.updateElevatorPosition(this.inputs.setpointPosition);
         goal.updateElevatorPosition(this.setpoint);
+        
+        SmartDashboard.putString("elevator/next_stop", this.nextStop.toString());
         SmartDashboard.putString("elevator/motor voltage", this.inputs.appliedVoltsLeader.toString());
         SmartDashboard.putString("elevator/motor supply current", this.inputs.supplyCurrentLeader.toString());
         SmartDashboard.putString("elevator/motor torque current", this.inputs.torqueCurrentLeader.toString());
