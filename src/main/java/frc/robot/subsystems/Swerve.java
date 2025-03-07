@@ -300,7 +300,7 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putData("Gyro Data", gyro);
         SmartDashboard.putNumber("Gyro Yaw", getGyroYaw().getDegrees());
        
-        LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(),0,0,0,0,0);
+        LimelightHelpers.SetRobotOrientation("limelight", -m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(),0,0,0,0,0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
         //SmartDashboard.putString("Limelight Pose ", LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight").pose.toString());
         
@@ -309,10 +309,11 @@ public class Swerve extends SubsystemBase {
 
         m_poseEstimator.update(getGyroYaw(), getModulePositions());
 
-        if((Math.abs(gyro.getAngularVelocityZWorld().getValueAsDouble()) < 720) && mt2.tagCount > 0)
-        {
-            //m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-            m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+        if (mt2 != null) {
+            if ((Math.abs(gyro.getAngularVelocityZWorld().getValueAsDouble()) < 720) && mt2.tagCount > 0) {
+                // m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+                m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+            }
         }
 
         for (SwerveModule mod : mSwerveMods) {

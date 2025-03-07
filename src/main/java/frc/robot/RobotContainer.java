@@ -17,13 +17,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOReal;
 
 import frc.robot.subsystems.ledSubsystem;
+import frc.robot.subsystems.dontuse_Elevator.Stop;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -140,7 +141,10 @@ public class RobotContainer {
 
         driver.leftBumper().onTrue(new InstantCommand(() -> setSide(true)));
         driver.rightBumper().onTrue(new InstantCommand(() -> setSide(false)));
-  
+        Trigger coralSensed = new Trigger(() -> intake.hasCoral());
+
+        coralSensed.whileTrue((new InstantCommand(() -> m_led.setColor(Color.kWhite)))
+            .andThen(new InstantCommand(()-> m_led.startBlinking())));
 
     }
 
@@ -183,8 +187,8 @@ public class RobotContainer {
         return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), true, stop);
     }
 
-    private Command alignRight(){
-        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), false, ElevatorStop.L1);
+    private Command alignRight(ElevatorStop stop){
+        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), false, stop);
     }
 
 
