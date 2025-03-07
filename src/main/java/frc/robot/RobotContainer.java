@@ -99,6 +99,8 @@ public class RobotContainer {
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
+        SmartDashboard.putString("approach right", Swerve.nearestFace(s_Swerve.getPose().getTranslation()).approachRight.toString());
+        SmartDashboard.putString("approach left", Swerve.nearestFace(s_Swerve.getPose().getTranslation()).approachLeft.toString());
 
         s_Swerve.setDefaultCommand(
                 new TeleopSwerve(
@@ -106,9 +108,9 @@ public class RobotContainer {
                         () -> -translationAxis.get(),
                         () -> -strafeAxis.get(),
                         () -> -rotationAxis.get(),
-                        () -> driver.povUp().getAsBoolean(), 
-                        () -> driver.rightStick().getAsBoolean()));
-
+                        () -> false, 
+                        () -> driver.leftTrigger().getAsBoolean(), 
+                        () -> driver.rightTrigger().getAsBoolean()));
         // Configure the button bindings
         configureButtonBindings();
         /* 
@@ -155,6 +157,7 @@ public class RobotContainer {
         coralSensed.whileTrue((new InstantCommand(() -> m_led.setColor(Color.kWhite)))
             .andThen(new InstantCommand(()-> m_led.startBlinking())));
 
+
     }
 
     /*  
@@ -165,6 +168,8 @@ public class RobotContainer {
      */
 
     private Command alignReef(ReefFace face, boolean left, ElevatorStop stop) {
+        SmartDashboard.putString("target face", face.toString());
+        SmartDashboard.putString("stop next", stop.toString());
 
         return Commands.sequence(
             pivot.pivotTo(Pivots.Down),
@@ -177,7 +182,7 @@ public class RobotContainer {
                     //new LocalSwerve(s_Swerve, left ? face.alignLeft : face.alignRight, true)
                 ),
                 Commands.sequence( // remove algae
-                    //new LocalSwerve(s_Swerve, face.approachMiddle, false),
+                    new LocalSwerve(s_Swerve, face.approachMiddle, false),
                     //new LocalSwerve(s_Swerve, face.alignMiddle, true),
                     elevators.moveToNext()
                 ),
@@ -211,7 +216,7 @@ public class RobotContainer {
 
     // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
     private Command feed() {
-        return elevators.moveTo(ElevatorStop.INTAKE)
+        return elevators.moveToIntake()
             .andThen(new WaitCommand(1.5))
             .andThen(pivot.pivotTo(Pivots.Intake))
             .andThen(intake.setIntakeSpeed(-0.2));

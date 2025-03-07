@@ -124,17 +124,39 @@ public class Swerve extends SubsystemBase {
         return targetForwardSpeed;
     }
 
-    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop, boolean isLimelight) {
+    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean alignLeft, boolean alignRight) {
         SwerveModuleState[] swerveModuleStates;
-
-        if (isLimelight) {
+        SmartDashboard.putBoolean("ar", alignRight);
+        SmartDashboard.putBoolean("al", alignLeft);
+        if (alignLeft && LimelightHelpers.getTA("limelight") < 4){
+            ll = true;
+            swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
+                    new ChassisSpeeds(
+                            limelightX(),
+                            //translation.getY(),
+                            0, //limelightRotation(),
+                            rotation));
+        } 
+        
+        else if (alignLeft && (LimelightHelpers.getTX("limelight") > 35 || 
+            LimelightHelpers.getTX("limelight") < 30)) {
+            ll = true;
+            swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
+                    new ChassisSpeeds(
+                            0, //limelightX(),
+                            //translation.getY(),
+                            limelightRotation(),
+                            rotation));
+        } 
+        else if(alignRight && LimelightHelpers.getTA("limelight") < 10 && LimelightHelpers.getTX("limelight") < 10){
             ll = true;
             swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                     new ChassisSpeeds(
                             limelightX(),
                             translation.getY(),
-                            limelightRotation()));
-        } else {
+                            limelightRotation()));  
+        }
+        else {
             ll = false;
             swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                     fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -149,7 +171,7 @@ public class Swerve extends SubsystemBase {
         }
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
         for (SwerveModule mod : mSwerveMods) {
-            mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
+            mod.setDesiredState(swerveModuleStates[mod.moduleNumber], true);
         }
     }
 
@@ -249,7 +271,7 @@ public class Swerve extends SubsystemBase {
     public static ReefFace nearestFace(Translation2d position) {
         Rotation2d reefBearing = flipIfRed(reefBearing(position));
         double bearingAngle = MathUtil.inputModulus(reefBearing.getDegrees(), -180, 180);
-
+        SmartDashboard.putNumber("bearing angle", bearingAngle);
         if (bearingAngle > 150 || bearingAngle < -150) {
             return ReefFace.GH;
         } else if (bearingAngle > 90) {
@@ -267,11 +289,13 @@ public class Swerve extends SubsystemBase {
 
     public void zeroHeading() {
         if (Robot.isRed()) {
-            setHeading(new Rotation2d(Math.PI));
+         //   setHeading(new Rotation2d(Math.PI));
+            gyro.setYaw(180);
         }
-        else {
-            setHeading(new Rotation2d());
-        }
+
+          //  setHeading(new Rotation2d());
+          gyro.reset();
+
     }
 
     public Rotation2d getGyroYaw() {
@@ -300,13 +324,15 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putData("Gyro Data", gyro);
         SmartDashboard.putNumber("Gyro Yaw", getGyroYaw().getDegrees());
        
-        LimelightHelpers.SetRobotOrientation("limelight", -m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(),0,0,0,0,0);
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-        //SmartDashboard.putString("Limelight Pose ", LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight").pose.toString());
+        LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(),0,0,0,0,0);
+       // LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
         
+        //SmartDashboard.putString("Limelight Pose ", LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight").pose.toString());
+        SmartDashboard.putBoolean("is red?", Robot.isRed());
         Pose2d pose = getPose();
         field.setRobotPose(pose);   
-
+        SmartDashboard.putString("actual pose", pose.toString());
         m_poseEstimator.update(getGyroYaw(), getModulePositions());
         
         if (mt2 != null) {

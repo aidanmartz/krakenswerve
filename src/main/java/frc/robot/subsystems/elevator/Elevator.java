@@ -51,7 +51,7 @@ public class Elevator extends SubsystemBase {
         this.actual = RobotState.getMeasuredInstance();
         this.target = RobotState.getDesiredInstance();
         this.goal = RobotState.getGoalInstance();
-        this.nextStop = ElevatorStop.L4; 
+        this.nextStop = ElevatorStop.L1; 
 
         measuredVisualizer = new ElevatorVisualizer("Measured", Color.kBlack);
         goalVisualizer = new ElevatorVisualizer("Goal", Color.kBlue);
@@ -69,7 +69,7 @@ public class Elevator extends SubsystemBase {
     };
 
     private final EnumMap<ElevatorStop, Distance> elevatorHeights = new EnumMap<>(Map.ofEntries(
-            Map.entry(ElevatorStop.INTAKE, Inches.of(0.1)),
+            Map.entry(ElevatorStop.INTAKE, Inches.of(0)),
             Map.entry(ElevatorStop.L1, Inches.of(3.0)),
             Map.entry(ElevatorStop.L2, Inches.of(6.0)), // was 8
             Map.entry(ElevatorStop.L2_ALGAE, Inches.of(13.0)),
@@ -88,9 +88,22 @@ public class Elevator extends SubsystemBase {
         else{
             this.io.runVolts(Volts.of(2));
         } */
-        return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(stop));
+        return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(this.nextStop));
+        //return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(stop));
     }
-
+    public Command moveToIntake() {
+        /* 
+          // Move up
+          if (this.inputs.position.lt(elevatorHeights.get(stop))){
+              this.io.runVolts(Volts.of(6));
+          }
+          // Move down slower
+          else{
+              this.io.runVolts(Volts.of(2));
+          } */
+          return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(ElevatorStop.INTAKE));
+          //return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(stop));
+      }
 
     public Command moveToNext() {
         return moveTo(this.nextStop);

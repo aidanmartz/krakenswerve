@@ -35,7 +35,7 @@ public class ElevatorIOReal implements ElevatorIO {
     
     //unused// private Stop nextStop = Stop.SAFE;
     private MutDistance currentPosition = Inches.mutable(0.0);
-    private ElevatorFeedforward el_Feedforward = new ElevatorFeedforward(0.0, 1.0, 0);
+    private ElevatorFeedforward el_Feedforward = new ElevatorFeedforward(0.0,1.2, 0);
     
     public ElevatorIOReal() {
         

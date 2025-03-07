@@ -91,8 +91,9 @@ public final class Constants {
 
         // Dont climb the reef
         public static final double elevatorNoDownDistance = reefToFaceDistance + reefOffset + Units.inchesToMeters(12.0);
-
-        public static enum ReefFace {
+       
+       
+       public static enum ReefFace {
             AB(-180, true),
             CD(-120, false),
             EF(-60, true),
@@ -110,14 +111,41 @@ public final class Constants {
                 approachRight = new Pose2d(reefCenter.plus(rightApproachOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
                 alignBonusLeft = new Pose2d(reefCenter.plus(leftBonusOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
                 alignBonusRight = new Pose2d(reefCenter.plus(rightBonusOffset).rotateAround(reefCenter, directionFromCenter), directionFromCenter.plus(Rotation2d.k180deg));
+                approachRightMaths = new Pose2d(new Translation2d(2.82,3.90),new Rotation2d(0));
                 this.algaeHigh = algaeHigh;
             }
 
             public final Rotation2d directionFromCenter;
             public final Pose2d alignLeft, alignMiddle, alignRight;
-            public final Pose2d approachLeft, approachMiddle, approachRight;
+            public final Pose2d approachLeft, approachMiddle, approachRight, approachRightMaths;
             public final Pose2d alignBonusLeft, alignBonusRight;
             public final boolean algaeHigh;       
+            
+            /*public static enum ReefFace { //Blue
+                AB(0, true),
+                CD(60, false),
+                EF(120, true),
+                GH(180, false),
+                IJ(-120, true),
+                KL(-60, false);
+                ReefFace(double directionDegrees, boolean algaeHigh) {
+                    approachABRight =  new Pose2d(new Translation2d(2.82,3.90),new Rotation2d(directionDegrees));
+                    approachABLeft =   new Pose2d(new Translation2d(2.82,4.18),new Rotation2d(directionDegrees));
+                    approachCDRight =  new Pose2d(new Translation2d(3.26,2.96),new Rotation2d(directionDegrees));
+                    approachCDLeft =   new Pose2d(new Translation2d(2.702,3.56),new Rotation2d(directionDegrees)); 
+                    approachEFRight =  new Pose2d(new Translation2d(),new Rotation2d(directionDegrees));
+                    approachEFLeft =   new Pose2d(new Translation2d(5.1,2.56),new Rotation2d(directionDegrees));
+                    approachGHRight =  new Pose2d(new Translation2d(2.82,3.90),new Rotation2d(directionDegrees));
+                    approachGHLeft = 
+                    approachGHRight =  new Pose2d(new Translation2d(2.82,3.90),new Rotation2d(directionDegrees));
+                    approachGHLeft = 
+                    approachIJRight =  new Pose2d(new Translation2d(2.82,3.90),new Rotation2d(directionDegrees));
+                    approachIJLeft = 
+                    approachKLRight =  new Pose2d(new Translation2d(2.82,3.90),new Rotation2d(directionDegrees));
+                    approachKLLeft = 
+                }
+*/
+
         }
     }
 

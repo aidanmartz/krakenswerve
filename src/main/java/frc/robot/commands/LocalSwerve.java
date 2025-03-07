@@ -93,11 +93,12 @@ public class LocalSwerve extends LoggedCommandBase{
         double rotationVal = MathUtil.clamp(correction + feedForward, -1.0, 1.0);
 
         /* Drive */
+        /* 
         m_swerve.drive(
             new Translation2d(xVal, yVal).times(maxSpeed),
             rotationVal * maxAngularVelocity,
-            true, true, false
-         );
+            false, true, false
+         );*/
     }
 
 }
