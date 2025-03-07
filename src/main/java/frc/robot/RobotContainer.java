@@ -147,22 +147,25 @@ public class RobotContainer {
         driver.y().onTrue(elevators.setNextStopCommand(ElevatorStop.L3).andThen(colorCommand(Color.kPink)));
         driver.b().onTrue(elevators.setNextStopCommand(ElevatorStop.L4).andThen(colorCommand(Color.kAqua)));
 
-        driver.leftBumper().onTrue(alignLeftNextStop());
-        driver.rightBumper().onTrue(alignRightNextStop());        
+        driver.leftBumper().onTrue(elevators.moveToNextStop());
+        driver.rightBumper().onTrue(intake.setIntakeSpeed(0.2)
+                .andThen(new WaitCommand(0.3))
+                .andThen(pivots.pivotTo(Up)) 
+                .andThen(elevators.moveToIntake())
+                .andThen(new WaitCommand(0.5))
+                .andThen(pivots.pivotTo(Intake))
+                .andThen(intakeml.setIntakeSpeed(-0.2)
+            );
         
         driver.start().onTrue(feed());
 
         Trigger coralSensed = new Trigger(() -> intake.hasCoral());
-
+  
         // If we ever start blinking we need to stop blinking...
         coralSensed.onTrue(
-            colorCommand(Color.kWhite)
+            colorCommand(Color.kWhite).andThen(pivot.pivotTo(Pivots.Intake)
             //.andThen(new InstantCommand(()-> m_led.startBlinking()))
         );
-        // .onFalse(
-        //     new InstantCommand(()-> m_led.stopBlinking())
-        // );
-
 
     }
 
