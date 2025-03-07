@@ -67,7 +67,10 @@ public class RobotContainer {
     private final Intake intake;
     private final Pivot pivot;
     private final ledSubsystem m_led = new ledSubsystem();
+    
+    /* misc variables */
     public boolean leftSide;
+    private Color original_color;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -84,7 +87,8 @@ public class RobotContainer {
         }
 
         // set color at startup
-        m_led.setColor(Robot.isRed() ? Color.kRed : Color.kBlue);
+        original_color = Robot.isRed() ? Color.kRed : Color.kBlue;
+        m_led.setColor(original_color);
 
         for (ReefFace face: ReefFace.values()) {
             setReefCommands(face);
@@ -217,7 +221,9 @@ public class RobotContainer {
             .andThen(intake.setIntakeSpeed(0.0))
             .andThen(pivot.pivotTo(Pivots.Up))
             .andThen(new WaitCommand(0.5))
-            .andThen(feed()); 
+            .andThen(feed())
+            .andThen(colorCommand(original_color))
+            ;
     }
 
     private Command colorCommand(Color acolor) {
