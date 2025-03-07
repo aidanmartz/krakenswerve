@@ -333,6 +333,8 @@ public class Swerve extends SubsystemBase {
         Pose2d pose = getPose();
         field.setRobotPose(pose);   
         SmartDashboard.putString("actual pose", pose.toString());
+        SmartDashboard.putString("nearest face" , nearestFace(pose.getTranslation()).toString());
+
         m_poseEstimator.update(getGyroYaw(), getModulePositions());
         
         if (mt2 != null) {
