@@ -26,8 +26,8 @@ public class Elevator extends SubsystemBase {
 
     private static final LoggedTunableNumber kS = new LoggedTunableNumber("Elevator/Gains/kS", 0.0);
     private static final LoggedTunableNumber kV = new LoggedTunableNumber("Elevator/Gains/kV", 0.0);
-    private static final LoggedTunableNumber kA = new LoggedTunableNumber("Elevator/Gains/kA", 1.45);
-    private static final LoggedTunableNumber kG = new LoggedTunableNumber("Elevator/Gains/kG", 0.0);
+    private static final LoggedTunableNumber kA = new LoggedTunableNumber("Elevator/Gains/kA", 0);
+    private static final LoggedTunableNumber kG = new LoggedTunableNumber("Elevator/Gains/kG", 0.5);
      
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
@@ -71,9 +71,9 @@ public class Elevator extends SubsystemBase {
     private final EnumMap<ElevatorStop, Distance> elevatorHeights = new EnumMap<>(Map.ofEntries(
             Map.entry(ElevatorStop.INTAKE, Inches.of(0.1)),
             Map.entry(ElevatorStop.L1, Inches.of(3.0)),
-            Map.entry(ElevatorStop.L2, Inches.of(8.0)),
+            Map.entry(ElevatorStop.L2, Inches.of(6.0)), // was 8
             Map.entry(ElevatorStop.L2_ALGAE, Inches.of(13.0)),
-            Map.entry(ElevatorStop.L3, Inches.of(13.5)),
+            Map.entry(ElevatorStop.L3, Inches.of(11.5)), // was 13.5
             Map.entry(ElevatorStop.L3_ALGAE, Inches.of(18.0)),
             Map.entry(ElevatorStop.L4, Inches.of(22.0))  //19.5
         ));
