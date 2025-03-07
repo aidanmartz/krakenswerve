@@ -173,9 +173,8 @@ public class RobotContainer {
      * in 1 spot
      */
 
-    private Command alignReef(ReefFace face, boolean left, ElevatorStop stop) {
+    private Command alignReef(ReefFace face, boolean left) {
         SmartDashboard.putString("target face", face.toString());
-        SmartDashboard.putString("stop next", stop.toString());
 
         return Commands.sequence(
             pivot.pivotTo(Pivots.Down),
@@ -183,7 +182,7 @@ public class RobotContainer {
             Commands.either(
                 Commands.sequence( // score
                     //new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, false),
-                    elevators.moveTo(stop),
+                    elevators.moveToNext(),
                     new WaitCommand(1.5)
                     //new LocalSwerve(s_Swerve, left ? face.alignLeft : face.alignRight, true)
                 ),
@@ -198,26 +197,20 @@ public class RobotContainer {
         );
     }
 
-    
-    // left side, backward compatibility
-    private Command align(ElevatorStop stop) {
-        return alignLeft(stop);
+    private Command alignLeft() {
+        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), true);
     }
 
-    private Command alignLeft(ElevatorStop stop) {
-        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), true, stop);
-    }
-
-    private Command alignRight(ElevatorStop stop) {
-        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), false, stop);
+    private Command alignRight() {
+        return alignReef(Swerve.nearestFace(s_Swerve.getPose().getTranslation()), false);
     }
     
     private Command alignLeftNextStop() {
-        return alignLeft(elevators.getNextStop());
+        return alignLeft();
     }
     
     private Command alignRightNextStop() {
-        return alignRight(elevators.getNextStop());
+        return alignRight();
     }
 
     // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
