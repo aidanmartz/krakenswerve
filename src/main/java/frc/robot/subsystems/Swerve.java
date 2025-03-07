@@ -308,7 +308,7 @@ public class Swerve extends SubsystemBase {
         field.setRobotPose(pose);   
 
         m_poseEstimator.update(getGyroYaw(), getModulePositions());
-
+        
         if (mt2 != null) {
             if ((Math.abs(gyro.getAngularVelocityZWorld().getValueAsDouble()) < 720) && mt2.tagCount > 0) {
                 // m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
