@@ -73,6 +73,8 @@ public class RobotContainer {
     public boolean leftSide;
     private Color original_color;
 
+    // blue bumper = 1c3c7c (28,60,124)
+    // red bumper = 7a0808 (128,8,8)
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -87,8 +89,12 @@ public class RobotContainer {
             this.intake = new Intake(new IntakeIOReal()); //TODO SIM
         }
 
+
         // set color at startup
-        original_color = Robot.isRed() ? Color.kRed : Color.kBlue;
+        Color redBumper = new Color(128,8,8);
+        Color blueBumper = new Color(28,60,124);
+        original_color = Robot.isRed() ? redBumper : blueBumper;
+        
         m_led.setColor(original_color);
 
         for (ReefFace face: ReefFace.values()) {
@@ -136,26 +142,26 @@ public class RobotContainer {
         driver.povUp().onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));        
         driver.povDown().onTrue(s_Swerve.resetModulesToAbsolute());
 
-        driver.a().onTrue(new InstantCommand(() -> elevators.setNextStop(ElevatorStop.L1)));
-        driver.x().onTrue(new InstantCommand(() -> elevators.setNextStop(ElevatorStop.L2)));
-        driver.y().onTrue(new InstantCommand(() -> elevators.setNextStop(ElevatorStop.L3)));
-        driver.b().onTrue(new InstantCommand(() -> elevators.setNextStop(ElevatorStop.L4))); 
+        driver.a().onTrue(elevators.setNextStopCommand(ElevatorStop.L1).andThen(colorCommand(Color.kBrown)));
+        driver.x().onTrue(elevators.setNextStopCommand(ElevatorStop.L2).andThen(colorCommand(Color.kGold)));
+        driver.y().onTrue(elevators.setNextStopCommand(ElevatorStop.L3).andThen(colorCommand(Color.kPink)));
+        driver.b().onTrue(elevators.setNextStopCommand(ElevatorStop.L4).andThen(colorCommand(Color.kAqua)));
+
         driver.leftBumper().onTrue(alignLeftNextStop());
         driver.rightBumper().onTrue(alignRightNextStop());        
         
-        // driver.a().onTrue(align(ElevatorStop.L1));
-        // driver.x().onTrue(align(ElevatorStop.L2));
-        // driver.y().onTrue(align(ElevatorStop.L3));
-        // driver.b().onTrue(align(ElevatorStop.L4));
-        // driver.leftBumper().onTrue(new InstantCommand(() -> setSide(true)));
-        // driver.rightBumper().onTrue(new InstantCommand(() -> setSide(false)));
-
         driver.start().onTrue(feed());
 
         Trigger coralSensed = new Trigger(() -> intake.hasCoral());
 
-        coralSensed.whileTrue((new InstantCommand(() -> m_led.setColor(Color.kWhite)))
-            .andThen(new InstantCommand(()-> m_led.startBlinking())));
+        // If we ever start blinking we need to stop blinking...
+        coralSensed.onTrue(
+            colorCommand(Color.kWhite)
+            //.andThen(new InstantCommand(()-> m_led.startBlinking()))
+        );
+        // .onFalse(
+        //     new InstantCommand(()-> m_led.stopBlinking())
+        // );
 
 
     }
