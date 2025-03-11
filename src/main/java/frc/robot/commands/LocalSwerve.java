@@ -99,7 +99,7 @@ public class LocalSwerve extends LoggedCommandBase{
             0.0,
             new Translation2d(xVal, yVal).times(maxSpeed),
             rotationVal * maxAngularVelocity,
-            true, false, true, false, false
+            true, false, false
          );
     }
 

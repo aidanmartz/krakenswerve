@@ -1414,19 +1414,19 @@ public class LimelightHelpers {
      * @param limelightName Name of the Limelight camera
      */
     public static void setLEDMode_PipelineControl(String limelightName) {
-        setLimelightNTDouble(limelightName, "ledMode", 0);
+        setLimelightNTDouble(limelightName, "limelight", 0);
     }
 
     public static void setLEDMode_ForceOff(String limelightName) {
-        setLimelightNTDouble(limelightName, "ledMode", 1);
+        setLimelightNTDouble(limelightName, "limelight", 1);
     }
 
     public static void setLEDMode_ForceBlink(String limelightName) {
-        setLimelightNTDouble(limelightName, "ledMode", 2);
+        setLimelightNTDouble(limelightName, "limelight", 2);
     }
 
     public static void setLEDMode_ForceOn(String limelightName) {
-        setLimelightNTDouble(limelightName, "ledMode", 3);
+        setLimelightNTDouble(limelightName, "limelight", 3);
     }
 
     /**

@@ -106,7 +106,7 @@ public class Swerve extends SubsystemBase {
     }
 
     private double limelightRotation() {
-        double targetAngularVel = LimelightHelpers.getTXNC("limelight") * SmartDashboard.getNumber("limelight/ Coral Aim P",Constants.VisionConstants.kCameraAimScaler);
+        double targetAngularVel = LimelightHelpers.getTX("limelight") *Constants.VisionConstants.kCameraAimScaler;
         //double targetAngleVelocity = LimelightHelpers.getTargetPose_CameraSpace2D("limelight")[5];
         targetAngularVel *= -1;
         SmartDashboard.putNumber("limelight/Coral Angular Velocity", targetAngularVel);
@@ -114,8 +114,7 @@ public class Swerve extends SubsystemBase {
     }
 
     private double limelightRangeProp(){
-        double targetForwardSpeed = LimelightHelpers.getTY("limelight") * SmartDashboard.getNumber("limelight/ Coral Range P", Constants.VisionConstants.kCameraRangeScaler);
-        targetForwardSpeed *= -1;
+        double targetForwardSpeed = LimelightHelpers.getTY("limelight") * Constants.VisionConstants.kCameraRangeScalertargetForwardSpeed *= -1;
         SmartDashboard.putNumber("limelight/Coral Requested Forward Speed", targetForwardSpeed);
         return targetForwardSpeed;
     }
@@ -130,10 +129,8 @@ public class Swerve extends SubsystemBase {
     */
    
 
-    public void drive(double xSpeed, double ySpeed, Translation2d translation, double rotation, boolean fieldRelative, boolean rateLimit, boolean useCoralLimelight, boolean alignLeft, boolean alignRight) {
+    public void drive(double xSpeed, double ySpeed, Translation2d translation, double rotation, boolean fieldRelative, boolean rateLimit, boolean useCoralLimelight) {
         SwerveModuleState[] swerveModuleStates;
-        SmartDashboard.putBoolean("ar", alignRight);
-        SmartDashboard.putBoolean("al", alignLeft);
 
         if (LimelightHelpers.getTV("limelight") && useCoralLimelight){
             ll = true;
@@ -313,8 +310,10 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("limelight/use limelight", ll);
-        SmartDashboard.putNumber("limelight/TX", LimelightHelpers.getTXNC("limelight"));
+        SmartDashboard.putNumber("limelight/TX", LimelightHelpers.getTX("limelight"));
         SmartDashboard.putNumber("limelight/TA", LimelightHelpers.getTA("limelight"));
+        SmartDashboard.putNumber("limelight/TY", LimelightHelpers.getTY("limelight"));
+
         SmartDashboard.putNumber("limelight/Target ID", LimelightHelpers.getFiducialID("limelight"));
         
         SmartDashboard.putData("Gyro Data", gyro);

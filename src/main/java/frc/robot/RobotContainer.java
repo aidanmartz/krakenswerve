@@ -107,7 +107,7 @@ public class RobotContainer {
                     MathUtil.applyDeadband(driver.getLeftX(), 0.125),
                     Translation2d.kZero,
                     MathUtil.applyDeadband(driver.getRightX(), 0.125),
-                    true, false, true, false, false)))
+                    true, false, true)))
                     .until(intake ::hasCoral)
                     .withTimeout(1.25)
             .andThen(new InstantCommand(()-> LimelightHelpers.setLEDMode_ForceOff("limelight")))
@@ -138,8 +138,7 @@ public class RobotContainer {
                         () -> -strafeAxis.get(),
                         () -> -rotationAxis.get(),
                         () -> false, 
-                        () ->false, 
-                        () -> false));
+                        () -> driver.rightStick().getAsBoolean()));
         // Configure the button bindings
         configureButtonBindings();
 
@@ -172,7 +171,8 @@ public class RobotContainer {
         driver.leftBumper().onTrue(elevators.moveToNext());
        // driver.rightTrigger().onTrue(alignRight());
         //driver.leftTrigger().onTrue(alignLeft());
-        driver.rightTrigger().whileTrue(new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOn("limelight")));
+        driver.rightTrigger().whileTrue(new InstantCommand(() -> LimelightHelpers.setLEDMode_PipelineControl("limelight")));
+       // .onFalse(new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOff("limelight")));
        // driver.back().onTrue(new InstantCommand(()->s_Swerve.switchTags()));
        driver.back().onTrue(pivot.pivotTo(Pivots.ShootL4));
         driver.rightBumper().onTrue(intake.setIntakeSpeed(0.4));

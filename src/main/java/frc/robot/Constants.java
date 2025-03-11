@@ -313,10 +313,8 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
-        public static final double kCameraRangeScaler = 0.5;
-        public static final double kCameraAimScaler = 0.033;
-        public static final double kCameraAmpTargetArea = 1.1;
-        public static final double kCameraSpeakerTargetArea = 0.71;
+        public static final double kCameraRangeScaler = 0.1;
+        public static final double kCameraAimScaler = 0.1;
         public static final double kCamHeight = 0.41;
         public static final double kTagHeight = 1.27;
         public static final double kCamPitch = Math.PI / 4; // ~45 degrees (pi/4 rad)
