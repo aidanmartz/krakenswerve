@@ -8,6 +8,8 @@ import com.ctre.phoenix.sensors.PigeonIMU_ControlFrame;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -16,6 +18,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -96,6 +99,19 @@ public class RobotContainer {
         NamedCommands.registerCommand("Elevator L4", new InstantCommand(() -> elevators.moveToL4()).andThen(new WaitCommand(1.0)));
         NamedCommands.registerCommand("Shoot", autoShootCoral().andThen(colorCommand(Color.kGreen)));
         NamedCommands.registerCommand("Feed", feed().until(intake::hasCoral).andThen(pivot.pivotTo(Pivots.Shoot)).andThen(colorCommand(Color.kOrange)));
+        NamedCommands.registerCommand("FindCoral",
+            (new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOn("limelight")))
+            .andThen (new RunCommand(
+                () -> s_Swerve.drive(
+                    -MathUtil.applyDeadband(driver.getLeftY(), 0.125),
+                    -MathUtil.applyDeadband(driver.getLeftX(), 0.125),
+                    Translation2d.kZero,
+                    -MathUtil.applyDeadband(driver.getRightX(), 0.125),
+                    true, false, true, false, false)))
+                    .until(intake ::hasCoral)
+                    .withTimeout(1.25)
+            .andThen(new InstantCommand(()-> LimelightHelpers.setLEDMode_ForceOff("limelight")))
+        );
 
         // set color at startup
         Color redBumper = new Color(128,8,8);
@@ -156,7 +172,7 @@ public class RobotContainer {
         driver.leftBumper().onTrue(elevators.moveToNext());
        // driver.rightTrigger().onTrue(alignRight());
         //driver.leftTrigger().onTrue(alignLeft());
-
+        driver.rightTrigger().whileTrue(new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOn("limelight")));
        // driver.back().onTrue(new InstantCommand(()->s_Swerve.switchTags()));
        driver.back().onTrue(pivot.pivotTo(Pivots.ShootL4));
         driver.rightBumper().onTrue(intake.setIntakeSpeed(0.4));

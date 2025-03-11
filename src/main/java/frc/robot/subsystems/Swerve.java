@@ -114,12 +114,20 @@ public class Swerve extends SubsystemBase {
     }
 
     private double limelightRotation() {
-        double targetAngularVel = LimelightHelpers.getTXNC("limelight") * Constants.VisionConstants.kCameraAimScaler;
+        double targetAngularVel = LimelightHelpers.getTXNC("limelight") * SmartDashboard.getNumber("limelight/ Coral Aim P",Constants.VisionConstants.kCameraAimScaler);
         //double targetAngleVelocity = LimelightHelpers.getTargetPose_CameraSpace2D("limelight")[5];
         targetAngularVel *= -1;
         SmartDashboard.putNumber("limelight/Angular Velocity", targetAngularVel);
         return targetAngularVel;
     }
+
+    private double limelightRangeProp(){
+        double targetForwardSpeed = LimelightHelpers.getTY("limelight") * SmartDashboard.getNumber("limelight/ Note Range P", Constants.VisionConstants.kCameraRangeScaler);
+        targetForwardSpeed *= -1;
+        SmartDashboard.putNumber("limelight/Note Requested Forward Speed", targetForwardSpeed);
+        return targetForwardSpeed;
+    }
+
 
     private double limelightX() {
         double targetForwardSpeed = Constants.VisionConstants.kCameraRangeScaler / LimelightHelpers.getTA("limelight");
@@ -127,10 +135,39 @@ public class Swerve extends SubsystemBase {
         return targetForwardSpeed;
     }
 
-    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean alignLeft, boolean alignRight) {
+    /*private double limelightAimPropTag() {
+        double targetAngularVel = LimelightHelpers.getTX("limelight-tag") * SmartDashboard.getNumber("limelight/Note Aim P", Constants.VisionConstants.kCameraAimScaler);
+        targetAngularVel = -.375;
+        SmartDashboard.putNumber("limelight/Note Requested Angular Velcity", targetAngularVel);
+        return targetAngularVel;
+    }
+
+  private double limelightRangePropTag() {
+        double targetForwardSpeed = (1 /LimelightHelpers.getTY("limelight-tag")) SmartDashboard.getNumber("limelight/Note Range P", Constants.VisionConstants.kCameraRangeScaler);
+        targetForwardSpeed *= 150;
+        SmartDashboard.putNumber("limelight/Note Requested Forward Speed", targetForwardSpeed);
+        return targetForwardSpeed; 
+    }*/
+    /** 
+     *  @param xSpeed Speed of the robot in the x direction (forward)
+     * @param ySpeed Speed of the robot in the y direction (sideways)
+     * @param rotation Angular rate of the robot
+     * @param fielRelative Wether the provided x and y speeds are relative to the field
+     * @param rateLimit Whether to enable rate limiting for smoother control 
+    */
+   
+
+    public void drive(double xSpeed, double ySpeed, Translation2d translation, double rotation, boolean fieldRelative, boolean rateLimit, boolean useCoralLimelight, boolean alignLeft, boolean alignRight) {
         SwerveModuleState[] swerveModuleStates;
         SmartDashboard.putBoolean("ar", alignRight);
         SmartDashboard.putBoolean("al", alignLeft);
+        if (LimelightHelpers.getTV("limelight") && useCoralLimelight){
+           xSpeed = limelightRangeProp();
+            rotation = limelightRangeProp();
+            fieldRelative = false;
+            rateLimit = false;
+
+        }
         if (alignLeft && LimelightHelpers.getTA("limelight") < 4){
             ll = true;
             swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
@@ -172,6 +209,7 @@ public class Swerve extends SubsystemBase {
                                     translation.getY(),
                                     rotation));
         }
+        
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
         for (SwerveModule mod : mSwerveMods) {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], true);
