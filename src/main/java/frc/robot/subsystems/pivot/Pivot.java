@@ -63,7 +63,8 @@ public class Pivot extends SubsystemBase {
         Intake,
         Shoot,
         Up, 
-        Down
+        Down,
+        ShootL4
     };
 
     // geared at 25:1
@@ -71,7 +72,8 @@ public class Pivot extends SubsystemBase {
             Map.entry(Pivots.Intake, Degrees.of(18.8)), //7.5
             Map.entry(Pivots.Up, Degrees.of(10)), //11
             Map.entry(Pivots.Shoot, Degrees.of(5)), //18
-            Map.entry(Pivots.Down, Degrees.of(1.5))));
+            Map.entry(Pivots.Down, Degrees.of(1.5)),
+            Map.entry(Pivots.ShootL4, Degrees.of(4))));
 
     
     public Command pivotTo(Pivots pivot) {

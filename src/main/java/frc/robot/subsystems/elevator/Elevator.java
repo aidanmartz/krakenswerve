@@ -76,7 +76,7 @@ public class Elevator extends SubsystemBase {
             Map.entry(ElevatorStop.L2_ALGAE, Inches.of(13.0)),
             Map.entry(ElevatorStop.L3, Inches.of(11.5)), // was 13.5
             Map.entry(ElevatorStop.L3_ALGAE, Inches.of(18.0)),
-            Map.entry(ElevatorStop.L4, Inches.of(22.0))  //19.5
+            Map.entry(ElevatorStop.L4, Inches.of(21.2))  //19.5
         ));
 
     public Command moveTo(ElevatorStop stop) {
@@ -93,18 +93,13 @@ public class Elevator extends SubsystemBase {
         //return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(stop));
     }
     public Command moveToIntake() {
-        /* 
-          // Move up
-          if (this.inputs.position.lt(elevatorHeights.get(stop))){
-              this.io.runVolts(Volts.of(6));
-          }
-          // Move down slower
-          else{
-              this.io.runVolts(Volts.of(2));
-          } */
+
           return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(ElevatorStop.INTAKE));
-          //return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(stop));
-      }
+    }
+    public void moveToL4() {
+
+        this.setpoint = elevatorHeights.get(ElevatorStop.L4);
+  }
 
     public Command moveToNext() {
         return moveTo(this.nextStop);

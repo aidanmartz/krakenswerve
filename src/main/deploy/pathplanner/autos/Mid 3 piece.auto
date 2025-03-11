@@ -7,13 +7,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Pivot to Shoot"
+            "name": "Intake On"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Start - F"
+            "pathName": "Mid w auto"
           }
         },
         {
@@ -25,61 +25,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F - Source"
+            "pathName": "auto G - Source"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake On"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Source - E"
+            "pathName": "Source C w auto"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "E - Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source - D"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "D - Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source - C"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "C - Source"
           }
         }
       ]

@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.util.EnumMap;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix.sensors.PigeonIMU_ControlFrame;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -90,6 +91,12 @@ public class RobotContainer {
         }
 
 
+        NamedCommands.registerCommand("Intake On", intake.setIntakeSpeed(-0.3));
+        NamedCommands.registerCommand("Pivot to Shoot", intake.setIntakeSpeed(-0.3).andThen(new WaitCommand(1.0)).andThen(pivot.pivotTo(Pivots.Shoot).andThen(colorCommand(Color.kRed))));
+        NamedCommands.registerCommand("Elevator L4", new InstantCommand(() -> elevators.moveToL4()).andThen(new WaitCommand(1.0)));
+        NamedCommands.registerCommand("Shoot", autoShootCoral().andThen(colorCommand(Color.kGreen)));
+        NamedCommands.registerCommand("Feed", feed().until(intake::hasCoral).andThen(pivot.pivotTo(Pivots.Shoot)).andThen(colorCommand(Color.kOrange)));
+
         // set color at startup
         Color redBumper = new Color(128,8,8);
         Color blueBumper = new Color(28,60,124);
@@ -115,22 +122,21 @@ public class RobotContainer {
                         () -> -strafeAxis.get(),
                         () -> -rotationAxis.get(),
                         () -> false, 
-                        () -> driver.leftTrigger().getAsBoolean(), 
-                        () -> driver.rightTrigger().getAsBoolean()));
+                        () ->false, 
+                        () -> false));
         // Configure the button bindings
         configureButtonBindings();
+
         /* 
-        NamedCommands.registerCommand("Shoot L4", ShootCoral(ElevatorStop.L4));
         NamedCommands.registerCommand("Shoot L3", ShootCoral(ElevatorStop.L3));
         NamedCommands.registerCommand("Shoot L2", ShootCoral(ElevatorStop.L2));
         NamedCommands.registerCommand("Shoot L1", ShootCoral(ElevatorStop.L1));
         NamedCommands.registerCommand("Go to intake", feed());
-        NamedCommands.registerCommand("Intake In", intake.setIntakeSpeed(-0.4));
+        NamedCommands.registerCommand("Intake In", intake.setIntakeSpeed(-0.4));    
         NamedCommands.registerCommand("Intake Out", intake.setIntakeSpeed(0.4));
 ```
         NamedCommands.registerCommand("Pivot Up", pivot.pivotTo(Pivots.Up));
         NamedCommands.registerCommand("Pivot Down", pivot.pivotTo(Pivots.Down));
-        NamedCommands.registerCommand("Pivot Shoot", pivot.pivotTo(Pivots.Shoot));
         NamedCommands.registerCommand("Pivot Intake", pivot.pivotTo(Pivots.Intake));
         */
     }
@@ -148,15 +154,18 @@ public class RobotContainer {
         driver.b().onTrue(elevators.setNextStopCommand(ElevatorStop.L4).andThen(colorCommand(Color.kAqua)));
 
         driver.leftBumper().onTrue(elevators.moveToNext());
+       // driver.rightTrigger().onTrue(alignRight());
+        //driver.leftTrigger().onTrue(alignLeft());
 
-        driver.rightBumper().onTrue(intake.setIntakeSpeed(0.2)
-                .andThen(new WaitCommand(0.3))
-                .andThen(pivot.pivotTo(Pivots.Up)) 
-                .andThen(elevators.moveToIntake())
-                .andThen(new WaitCommand(0.5))
-                .andThen(pivot.pivotTo(Pivots.Intake))
-                .andThen(intake.setIntakeSpeed(-0.2))
-            );
+       // driver.back().onTrue(new InstantCommand(()->s_Swerve.switchTags()));
+       driver.back().onTrue(pivot.pivotTo(Pivots.ShootL4));
+        driver.rightBumper().onTrue(intake.setIntakeSpeed(0.4));
+        //.andThen(new WaitCommand(0.3))
+        //.andThen(pivot.pivotTo(Pivots.Up))) ;
+       // .andThen(elevators.moveToIntake()))
+        //.andThen(new WaitCommand(0.5))
+                //.andThen(pivot.pivotTo(Pivots.Intake))
+        //.andThen(intake.setIntakeSpeed(-0.2)));
         
         driver.start().onTrue(feed());
 
@@ -177,28 +186,38 @@ public class RobotContainer {
      * in 1 spot
      */
 
+
     private Command alignReef(ReefFace face, boolean left) {
         SmartDashboard.putString("target face", face.toString());
 
         return Commands.sequence(
-            pivot.pivotTo(Pivots.Down),
-            new WaitCommand(0.5),
+           // pivot.pivotTo(Pivots.Shoot),
+            //new WaitCommand(0.5),
             Commands.either(
                 Commands.sequence( // score
-                    //new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, false),
+                    new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, false),
                     elevators.moveToNext(),
-                    new WaitCommand(1.5)
-                    //new LocalSwerve(s_Swerve, left ? face.alignLeft : face.alignRight, true)
+                    new WaitCommand(0.5),
+                    new LocalSwerve(s_Swerve, left ? face.alignLeft : face.alignRight, true)
                 ),
                 Commands.sequence( // remove algae
                     new LocalSwerve(s_Swerve, face.approachMiddle, false),
-                    //new LocalSwerve(s_Swerve, face.alignMiddle, true),
+                    new LocalSwerve(s_Swerve, face.alignMiddle, true),
                     elevators.moveToNext()
                 ),
                 intake::hasCoral
             ),
             ShootCoral()
         );
+    }
+    public Command autoShootCoral(){
+       return    intake.setIntakeSpeed(0.4)
+                .andThen(new WaitCommand(1.0))
+                .andThen(pivot.pivotTo(Pivots.Up)); 
+               // .andThen(elevators.moveToIntake())
+              //  .andThen(new WaitCommand(0.5))
+              //  .andThen(pivot.pivotTo(Pivots.Intake))
+             //   .andThen(intake.setIntakeSpeed(-0.2));
     }
 
     private Command alignLeft() {
@@ -220,7 +239,7 @@ public class RobotContainer {
     // feed - get to feeder station with pivot and elevator in place, spin up intake when close, and wait for coral sensor, stop intake and pivot to shoot
     private Command feed() {
         return elevators.moveToIntake()
-            .andThen(new WaitCommand(1.5))
+            .andThen(new WaitCommand(0.5))
             .andThen(pivot.pivotTo(Pivots.Intake))
             .andThen(intake.setIntakeSpeed(-0.2));
     }

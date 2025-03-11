@@ -59,7 +59,7 @@ public class Intake extends SubsystemBase{
     }
 
     public boolean hasCoral(){
-        if(this.inputs.supplyCurrent.gt(Amps.of(4))){
+        if(this.inputs.supplyCurrent.gt(Amps.of(6.5))){
             return true;
         }
         return false;

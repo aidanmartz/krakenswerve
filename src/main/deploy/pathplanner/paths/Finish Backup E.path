@@ -3,40 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3207270408163265,
-        "y": 7.185044642857142
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 2.396149553571428,
-        "y": 7.005030293367347
-      },
-      "isLocked": false,
-      "linkedName": "Upper Source"
-    },
-    {
-      "anchor": {
         "x": 5.05905612244898,
         "y": 5.341996173469388
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.90280612244898,
+        "y": 5.118150510204082
+      },
+      "isLocked": false,
+      "linkedName": "E"
+    },
+    {
+      "anchor": {
+        "x": 5.073979591836735,
+        "y": 5.341996173469388
+      },
       "prevControl": {
-        "x": 6.013225446428573,
-        "y": 7.050733418367346
+        "x": 5.195390324631392,
+        "y": 5.560535492499773
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "E"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.34364820846905536,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0,
       "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 2.0,
+        "maxVelocity": 4.0,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -45,14 +45,7 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Elevator L4",
-      "waypointRelativePos": 0.5081433224755701,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
     "maxAcceleration": 4.0,
@@ -63,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": -119.84593194968741
   },
   "reversed": false,
-  "folder": "To Score",
+  "folder": "Start",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -54.0
+    "rotation": -120.74872732168464
   },
   "useDefaultConstraints": true
 }

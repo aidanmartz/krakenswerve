@@ -21,6 +21,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.FlippingUtil;
+import com.pathplanner.lib.config.RobotConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
@@ -37,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Swerve extends SubsystemBase {
     public SwerveModule[] mSwerveMods;
     public Boolean ll;
+    public Boolean ismt2;
     public boolean doRejectUpdate = false;
 
     // private final ReentrantLock swerveModLock = new ReentrantLock();
@@ -51,6 +53,7 @@ public class Swerve extends SubsystemBase {
         gyro.setYaw(0);
 
         ll = false;
+        ismt2 = false;
 
         mSwerveMods = new SwerveModule[] {
                 new SwerveModule(0, Constants.Swerve.Mod0.constants),
@@ -78,7 +81,7 @@ public class Swerve extends SubsystemBase {
         //odoNotifier.startPeriodic(isFastOdo ? 1.0 / 250.0 : 1.0 / 50.0);       
        
         try {
-            //RobotConfig config = RobotConfig.fromGUISettings();
+            RobotConfig config = RobotConfig.fromGUISettings();
 
             AutoBuilder.configure(
                     this::getPose, // Robot pose supplier
@@ -92,8 +95,8 @@ public class Swerve extends SubsystemBase {
                                                     // for holonomic drive trains
                             new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
                             new PIDConstants(5.0, 0.0, 0.0)),
-                    //config,
-                    Constants.PathPlanner.robotConfig,
+                    config,
+                    //Constants.PathPlanner.robotConfig,
                     Robot::isRed,
                     this);
         } catch (Exception e) {
@@ -133,7 +136,7 @@ public class Swerve extends SubsystemBase {
             swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                     new ChassisSpeeds(
                             limelightX(),
-                            //translation.getY(),
+                            //translation.getY(),   eirrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
                             0, //limelightRotation(),
                             rotation));
         } 
@@ -312,6 +315,10 @@ public class Swerve extends SubsystemBase {
                 this);
     }
 
+    public void switchTags() {
+         ismt2 = !ismt2;
+    }
+
 
 
     @Override
@@ -323,12 +330,16 @@ public class Swerve extends SubsystemBase {
         
         SmartDashboard.putData("Gyro Data", gyro);
         SmartDashboard.putNumber("Gyro Yaw", getGyroYaw().getDegrees());
-       
+        LimelightHelpers.PoseEstimate mt2;
         LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(),0,0,0,0,0);
-       // LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+        if(ismt2){
+              mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        } else {
+              mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+        }
         
         //SmartDashboard.putString("Limelight Pose ", LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight").pose.toString());
+        SmartDashboard.putBoolean("Mt2",ismt2);
         SmartDashboard.putBoolean("is red?", Robot.isRed());
         Pose2d pose = getPose();
         field.setRobotPose(pose);   
