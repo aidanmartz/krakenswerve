@@ -95,9 +95,11 @@ public class LocalSwerve extends LoggedCommandBase{
         /* Drive */
         
         m_swerve.drive(
+            0.0,
+            0.0,
             new Translation2d(xVal, yVal).times(maxSpeed),
             rotationVal * maxAngularVelocity,
-            false, true, false
+            true, false, true, false, false
          );
     }
 

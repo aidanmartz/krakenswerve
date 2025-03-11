@@ -103,10 +103,10 @@ public class RobotContainer {
             (new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOn("limelight")))
             .andThen (new RunCommand(
                 () -> s_Swerve.drive(
-                    -MathUtil.applyDeadband(driver.getLeftY(), 0.125),
-                    -MathUtil.applyDeadband(driver.getLeftX(), 0.125),
+                    MathUtil.applyDeadband(driver.getLeftY(), 0.125),
+                    MathUtil.applyDeadband(driver.getLeftX(), 0.125),
                     Translation2d.kZero,
-                    -MathUtil.applyDeadband(driver.getRightX(), 0.125),
+                    MathUtil.applyDeadband(driver.getRightX(), 0.125),
                     true, false, true, false, false)))
                     .until(intake ::hasCoral)
                     .withTimeout(1.25)
