@@ -114,7 +114,8 @@ public class Swerve extends SubsystemBase {
     }
 
     private double limelightRangeProp(){
-        double targetForwardSpeed = LimelightHelpers.getTY("limelight") * Constants.VisionConstants.kCameraRangeScalertargetForwardSpeed *= -1;
+        double targetForwardSpeed = LimelightHelpers.getTY("limelight") * Constants.VisionConstants.kCameraRangeScaler;
+        targetForwardSpeed *= -1;
         SmartDashboard.putNumber("limelight/Coral Requested Forward Speed", targetForwardSpeed);
         return targetForwardSpeed;
     }
