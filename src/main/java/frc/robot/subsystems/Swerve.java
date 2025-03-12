@@ -30,7 +30,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -73,12 +72,7 @@ public class Swerve extends SubsystemBase {
                 new Pose2d(),
                 VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
                 VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30))
-        );
-
-        // Add support for Canivore and use 250 Hz
-        // boolean isFastOdo = Constants.Swerve.isOnCANivore;
-        //odoNotifier = new Notifier(this::updateSwerveOdom);
-        //odoNotifier.startPeriodic(isFastOdo ? 1.0 / 250.0 : 1.0 / 50.0);       
+        );    
        
         try {
             RobotConfig config = RobotConfig.fromGUISettings();
@@ -117,37 +111,18 @@ public class Swerve extends SubsystemBase {
         double targetAngularVel = LimelightHelpers.getTXNC("limelight") * SmartDashboard.getNumber("limelight/ Coral Aim P",Constants.VisionConstants.kCameraAimScaler);
         //double targetAngleVelocity = LimelightHelpers.getTargetPose_CameraSpace2D("limelight")[5];
         targetAngularVel *= -1;
-        SmartDashboard.putNumber("limelight/Angular Velocity", targetAngularVel);
+        SmartDashboard.putNumber("limelight/Coral Angular Velocity", targetAngularVel);
         return targetAngularVel;
     }
 
     private double limelightRangeProp(){
-        double targetForwardSpeed = LimelightHelpers.getTY("limelight") * SmartDashboard.getNumber("limelight/ Note Range P", Constants.VisionConstants.kCameraRangeScaler);
+        double targetForwardSpeed = LimelightHelpers.getTY("limelight") * SmartDashboard.getNumber("limelight/ Coral Range P", Constants.VisionConstants.kCameraRangeScaler);
         targetForwardSpeed *= -1;
-        SmartDashboard.putNumber("limelight/Note Requested Forward Speed", targetForwardSpeed);
+        SmartDashboard.putNumber("limelight/Coral Requested Forward Speed", targetForwardSpeed);
         return targetForwardSpeed;
     }
 
 
-    private double limelightX() {
-        double targetForwardSpeed = Constants.VisionConstants.kCameraRangeScaler / LimelightHelpers.getTA("limelight");
-        SmartDashboard.putNumber("limelight/Forward Speed", targetForwardSpeed);
-        return targetForwardSpeed;
-    }
-
-    /*private double limelightAimPropTag() {
-        double targetAngularVel = LimelightHelpers.getTX("limelight-tag") * SmartDashboard.getNumber("limelight/Note Aim P", Constants.VisionConstants.kCameraAimScaler);
-        targetAngularVel = -.375;
-        SmartDashboard.putNumber("limelight/Note Requested Angular Velcity", targetAngularVel);
-        return targetAngularVel;
-    }
-
-  private double limelightRangePropTag() {
-        double targetForwardSpeed = (1 /LimelightHelpers.getTY("limelight-tag")) SmartDashboard.getNumber("limelight/Note Range P", Constants.VisionConstants.kCameraRangeScaler);
-        targetForwardSpeed *= 150;
-        SmartDashboard.putNumber("limelight/Note Requested Forward Speed", targetForwardSpeed);
-        return targetForwardSpeed; 
-    }*/
     /** 
      *  @param xSpeed Speed of the robot in the x direction (forward)
      * @param ySpeed Speed of the robot in the y direction (sideways)
@@ -161,43 +136,23 @@ public class Swerve extends SubsystemBase {
         SwerveModuleState[] swerveModuleStates;
         SmartDashboard.putBoolean("ar", alignRight);
         SmartDashboard.putBoolean("al", alignLeft);
+
         if (LimelightHelpers.getTV("limelight") && useCoralLimelight){
-           xSpeed = limelightRangeProp();
-            rotation = limelightRangeProp();
+            ll = true;
+            xSpeed = limelightRangeProp();
+            rotation = limelightRotation();
             fieldRelative = false;
             rateLimit = false;
+            swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
+                new ChassisSpeeds(
+                                    xSpeed,
+                                    translation.getY(),
+                                    rotation));
 
-        }
-        if (alignLeft && LimelightHelpers.getTA("limelight") < 4){
-            ll = true;
-            swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
-                    new ChassisSpeeds(
-                            limelightX(),
-                            //translation.getY(),   eirrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
-                            0, //limelightRotation(),
-                            rotation));
-        } 
-        
-        else if (alignLeft && (LimelightHelpers.getTX("limelight") > 35 || 
-            LimelightHelpers.getTX("limelight") < 30)) {
-            ll = true;
-            swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
-                    new ChassisSpeeds(
-                            0, //limelightX(),
-                            //translation.getY(),
-                            limelightRotation(),
-                            rotation));
-        } 
-        else if(alignRight && LimelightHelpers.getTA("limelight") < 10 && LimelightHelpers.getTX("limelight") < 10){
-            ll = true;
-            swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
-                    new ChassisSpeeds(
-                            limelightX(),
-                            translation.getY(),
-                            limelightRotation()));  
         }
         else {
             ll = false;
+
             swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                     fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
                             translation.getX(),
@@ -209,7 +164,7 @@ public class Swerve extends SubsystemBase {
                                     translation.getY(),
                                     rotation));
         }
-        
+
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
         for (SwerveModule mod : mSwerveMods) {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], true);
