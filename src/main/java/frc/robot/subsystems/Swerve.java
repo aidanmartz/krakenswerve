@@ -37,7 +37,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Swerve extends SubsystemBase {
     public SwerveModule[] mSwerveMods;
     public Boolean ll;
-    public Boolean ismt2;
     public boolean doRejectUpdate = false;
 
     // private final ReentrantLock swerveModLock = new ReentrantLock();
@@ -52,7 +51,6 @@ public class Swerve extends SubsystemBase {
         gyro.setYaw(0);
 
         ll = false;
-        ismt2 = false;
 
         mSwerveMods = new SwerveModule[] {
                 new SwerveModule(0, Constants.Swerve.Mod0.constants),
@@ -308,9 +306,7 @@ public class Swerve extends SubsystemBase {
                 this);
     }
 
-    public void switchTags() {
-         ismt2 = !ismt2;
-    }
+
 
 
 
@@ -323,16 +319,6 @@ public class Swerve extends SubsystemBase {
         
         SmartDashboard.putData("Gyro Data", gyro);
         SmartDashboard.putNumber("Gyro Yaw", getGyroYaw().getDegrees());
-        LimelightHelpers.PoseEstimate mt2;
-        LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(),0,0,0,0,0);
-        if(ismt2){
-              mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-        } else {
-              mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-        }
-        
-        //SmartDashboard.putString("Limelight Pose ", LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight").pose.toString());
-        SmartDashboard.putBoolean("Mt2",ismt2);
         SmartDashboard.putBoolean("is red?", Robot.isRed());
         Pose2d pose = getPose();
         field.setRobotPose(pose);   
@@ -340,13 +326,7 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putString("nearest face" , nearestFace(pose.getTranslation()).toString());
 
         m_poseEstimator.update(getGyroYaw(), getModulePositions());
-        
-        if (mt2 != null) {
-            if ((Math.abs(gyro.getAngularVelocityZWorld().getValueAsDouble()) < 720) && mt2.tagCount > 0) {
-                // m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-                m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
-            }
-        }
+    
 
         for (SwerveModule mod : mSwerveMods) {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
