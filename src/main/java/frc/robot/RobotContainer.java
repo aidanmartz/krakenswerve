@@ -1,17 +1,13 @@
 package frc.robot;
 
-import java.lang.annotation.ElementType;
 import java.util.EnumMap;
 import java.util.function.Supplier;
 
-import com.ctre.phoenix.sensors.PigeonIMU_ControlFrame;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -28,12 +24,10 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOReal;
 
 import frc.robot.subsystems.ledSubsystem;
-import frc.robot.subsystems.dontuse_Elevator.Stop;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.Elevator.ElevatorStop; // enum of stops
-import frc.lib.util.LoggedCommands;
 import frc.robot.Constants.Localization.ReefFace;
 import frc.robot.subsystems.pivot.Pivot;
 import frc.robot.subsystems.pivot.Pivot.Pivots;
@@ -90,7 +84,7 @@ public class RobotContainer {
         } else {
             this.elevators = new Elevator(new ElevatorIOSim());
             this.pivot = new Pivot(new PivotIOSim());
-            this.intake = new Intake(new IntakeIOReal()); //TODO SIM
+            this.intake = new Intake(new IntakeIOReal()); 
         }
 
 
@@ -169,28 +163,18 @@ public class RobotContainer {
         driver.b().onTrue(elevators.setNextStopCommand(ElevatorStop.L4).andThen(colorCommand(Color.kAqua)));
 
         driver.leftBumper().onTrue(elevators.moveToNext());
-       // driver.rightTrigger().onTrue(alignRight());
-        //driver.leftTrigger().onTrue(alignLeft());
-        driver.rightTrigger().whileTrue(new InstantCommand(() -> LimelightHelpers.setLEDMode_PipelineControl("limelight")));
-       // .onFalse(new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOff("limelight")));
-       // driver.back().onTrue(new InstantCommand(()->s_Swerve.switchTags()));
-       driver.back().onTrue(pivot.pivotTo(Pivots.ShootL4));
         driver.rightBumper().onTrue(intake.setIntakeSpeed(0.4));
-        //.andThen(new WaitCommand(0.3))
-        //.andThen(pivot.pivotTo(Pivots.Up))) ;
-       // .andThen(elevators.moveToIntake()))
-        //.andThen(new WaitCommand(0.5))
-                //.andThen(pivot.pivotTo(Pivots.Intake))
-        //.andThen(intake.setIntakeSpeed(-0.2)));
-        
+
+        //driver.leftTrigger().whileTrue();
+        driver.rightTrigger().whileTrue(new InstantCommand(() -> LimelightHelpers.setLEDMode_PipelineControl("limelight")));
+
+        driver.back().onTrue(pivot.pivotTo(Pivots.ShootL4));
         driver.start().onTrue(feed());
 
         Trigger coralSensed = new Trigger(() -> intake.hasCoral());
   
-        // If we ever start blinking we need to stop blinking...
         coralSensed.onTrue(
-            colorCommand(Color.kWhite).andThen(pivot.pivotTo(Pivots.Shoot))
-            //.andThen(new InstantCommand(()-> m_led.startBlinking()))
+            colorCommand(Color.kCoral).andThen(pivot.pivotTo(Pivots.Shoot))
         );
 
     }
@@ -207,8 +191,6 @@ public class RobotContainer {
         SmartDashboard.putString("target face", face.toString());
 
         return Commands.sequence(
-           // pivot.pivotTo(Pivots.Shoot),
-            //new WaitCommand(0.5),
             Commands.either(
                 Commands.sequence( // score
                     new LocalSwerve(s_Swerve, left ? face.approachLeft : face.approachRight, false),
@@ -223,17 +205,8 @@ public class RobotContainer {
                 ),
                 intake::hasCoral
             ),
-            ShootCoral()
+            shootCoral()
         );
-    }
-    public Command autoShootCoral(){
-       return    intake.setIntakeSpeed(0.4)
-                .andThen(new WaitCommand(1.0))
-                .andThen(pivot.pivotTo(Pivots.Up)); 
-               // .andThen(elevators.moveToIntake())
-              //  .andThen(new WaitCommand(0.5))
-              //  .andThen(pivot.pivotTo(Pivots.Intake))
-             //   .andThen(intake.setIntakeSpeed(-0.2));
     }
 
     private Command alignLeft() {
@@ -261,19 +234,22 @@ public class RobotContainer {
     }
 
     // scoreCoral - aligns, elevates, ensure proper position, outtake, waits for empty, stop intake, pivot up, lowers to safe, pivot to feed 
-    private Command ShootCoral() {
-        return pivot.pivotTo(Pivots.Shoot)
-            .andThen(new WaitCommand(0.5))
-            .andThen(colorCommand(Color.kPurple))
-            .andThen(intake.setIntakeSpeed(0.2))
+    private Command shootCoral() {
+        return (colorCommand(Color.kPurple))
+            .andThen(intake.setIntakeSpeed(0.4))
             .andThen(new WaitCommand(0.5))
             .andThen(intake.setIntakeSpeed(0.0))
             .andThen(pivot.pivotTo(Pivots.Up))
             .andThen(new WaitCommand(0.5))
             .andThen(feed())
-            .andThen(colorCommand(original_color))
-            ;
+            .andThen(colorCommand(original_color));
     }
+
+    public Command autoShootCoral(){
+        return intake.setIntakeSpeed(0.4)
+                 .andThen(new WaitCommand(1.0))
+                 .andThen(pivot.pivotTo(Pivots.Up)); 
+     }
 
     private Command colorCommand(Color acolor) {
         return new InstantCommand(() -> m_led.setColor(acolor));

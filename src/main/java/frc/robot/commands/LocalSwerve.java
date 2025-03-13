@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 import frc.robot.subsystems.*;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class LocalSwerve extends LoggedCommandBase{
@@ -30,20 +29,19 @@ public class LocalSwerve extends LoggedCommandBase{
     
     private final PIDController xPID = new PIDController(Constants.Swerve.driveKP, 0, 0);
     private final PIDController yPID = new PIDController(Constants.Swerve.driveKP, 0, 0);
-    private final PIDController rPID = new PIDController(0.10, 0, 0);
+    private final PIDController rPID = new PIDController(Constants.Swerve.angleKP, 0, 0);
 
     public LocalSwerve(Swerve m_swerve, Pose2d targetPose, boolean precise){
         super();
 
         targetPose = Swerve.flipIfRed(targetPose);
 
-
         this.m_swerve = m_swerve;
         this.targetPose = targetPose;
         this.precise = precise;
         SmartDashboard.putBoolean("Precise?", precise);
         SmartDashboard.putString("target pose", targetPose.toString());
-        //addRequirements(m_swerve);
+        addRequirements(m_swerve);
 
         xPID.setIZone(positionIZone); // Only use Integral term within this range
         xPID.setIntegratorRange(-positionKS * 2, positionKS * 2);
@@ -77,8 +75,6 @@ public class LocalSwerve extends LoggedCommandBase{
         Pose2d pose = m_swerve.getPose();
         Translation2d position = pose.getTranslation();
         Rotation2d rotation = pose.getRotation();
-
-        /* TODO Consider a potential need to rotate most of the way first, then translate */
 
         double xCorrection = xPID.calculate(Units.metersToInches(position.getX()));
         double xFeedForward = positionKS * Math.signum(xCorrection);
