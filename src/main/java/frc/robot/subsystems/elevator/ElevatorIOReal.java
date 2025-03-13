@@ -27,11 +27,14 @@ public class ElevatorIOReal implements ElevatorIO {
     private SparkClosedLoopController closedLoopControllerRight;
     
     private MutDistance currentPosition = Inches.mutable(0.0);
-    private ElevatorFeedforward el_Feedforward = new ElevatorFeedforward(0.0,0, 0);
+
+    // kS, kG, kV, kA values for feedforward calculation 
+    private ElevatorFeedforward elFeedForward = new ElevatorFeedforward(0.0,0, 0);
     private double feedForward;
 
     public ElevatorIOReal() {
-        feedForward = el_Feedforward.calculate(0.1);
+        // calculate ff based on kS, kG, kV, kA
+        feedForward = elFeedForward.calculate(0.1);
 
         elevatorLeft = setupElevatorSparkFlex(true, Constants.CANConstants.elevatorLeftId);
         closedLoopControllerLeft = elevatorLeft.getClosedLoopController();
@@ -52,7 +55,10 @@ public class ElevatorIOReal implements ElevatorIO {
             .velocityConversionFactor(1);
         config.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+
+            // Set slot0 values for position PIDF control
             .pidf(0.1, 0.0, 0.0, feedForward);
+            
         elevatorSpark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevatorSpark.getEncoder().setPosition(0);
         
