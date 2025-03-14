@@ -29,7 +29,7 @@ public class ElevatorIOReal implements ElevatorIO {
     private MutDistance currentPosition = Inches.mutable(0.0);
 
     // kS, kG, kV, kA values for feedforward calculation 
-    private ElevatorFeedforward elFeedForward = new ElevatorFeedforward(0.0,0, 0);
+    private ElevatorFeedforward elFeedForward = new ElevatorFeedforward(0.0,1.1, 0);
     private double feedForward;
 
     public ElevatorIOReal() {
@@ -55,10 +55,8 @@ public class ElevatorIOReal implements ElevatorIO {
             .velocityConversionFactor(1);
         config.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-
             // Set slot0 values for position PIDF control
-            .pidf(0.1, 0.0, 0.0, feedForward);
-            
+            .pid(0.05,0.0, 0.0);
         elevatorSpark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         elevatorSpark.getEncoder().setPosition(0);
         
