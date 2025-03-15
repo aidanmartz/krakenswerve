@@ -33,6 +33,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Vision;
+
 
 public class Swerve extends SubsystemBase {
     public SwerveModule[] mSwerveMods;
@@ -44,6 +46,7 @@ public class Swerve extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final Field2d field;
     private final Pigeon2 gyro;
+    private final Vision vision = new Vision();
 
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.CanBus);
@@ -315,13 +318,23 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putNumber("limelight/TA", LimelightHelpers.getTA("limelight"));
         SmartDashboard.putNumber("limelight/TY", LimelightHelpers.getTY("limelight"));
 
-        SmartDashboard.putNumber("limelight/Target ID", LimelightHelpers.getFiducialID("limelight"));
-        
+        var visionEst = vision.getEstimatedGlobalPose();
+        visionEst.ifPresent(
+                est -> {
+                    // Change our trust in the measurement based on the tags we can see
+                    var estStdDevs = vision.getEstimationStdDevs();
+
+                    m_poseEstimator.addVisionMeasurement(
+                            est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+                });
+
         SmartDashboard.putData("Gyro Data", gyro);
         SmartDashboard.putNumber("Gyro Yaw", getGyroYaw().getDegrees());
         SmartDashboard.putBoolean("is red?", Robot.isRed());
+
         Pose2d pose = getPose();
         field.setRobotPose(pose);   
+        
         SmartDashboard.putString("actual pose", pose.toString());
         SmartDashboard.putString("nearest face" , nearestFace(pose.getTranslation()).toString());
 

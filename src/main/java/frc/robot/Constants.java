@@ -6,11 +6,18 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.util.FlippingUtil;
+import edu.wpi.first.math.Matrix;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -318,6 +325,12 @@ public final class Constants {
         public static final double kCamHeight = 0.41;
         public static final double kTagHeight = 1.27;
         public static final double kCamPitch = Math.PI / 4; // ~45 degrees (pi/4 rad)
+        public static final String kCameraName = "Elgato_Facecam:_Elgato_Facecam";
+        public static final Transform3d kRobotToCam = new Transform3d(new Translation3d(Units.inchesToMeters(30.0/2.0 - 6.958), 0.0, Units.inchesToMeters(6.55)),
+                    new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-20.0), 0.0));
+        public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+
     }
 
       public static final class PathPlanner {
