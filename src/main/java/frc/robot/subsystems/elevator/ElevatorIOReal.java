@@ -23,57 +23,47 @@ public class ElevatorIOReal implements ElevatorIO {
 
     private SparkFlex elevatorLeft;
     private SparkFlex elevatorRight;
+    SparkFlexConfig elevatorLeftConfig;
+    SparkFlexConfig elevatorRightConfig;
     private SparkClosedLoopController closedLoopControllerLeft;
-    private SparkClosedLoopController closedLoopControllerRight;
     
     private MutDistance currentPosition = Inches.mutable(0.0);
 
-    // kS, kG, kV, kA values for feedforward calculation 
-    private ElevatorFeedforward elFeedForward = new ElevatorFeedforward(0.0,0, 0);
-    private double feedForward;
-
     public ElevatorIOReal() {
-        // calculate ff based on kS, kG, kV, kA
-        feedForward = elFeedForward.calculate(0.1);
 
-        elevatorLeft = setupElevatorSparkFlex(true, Constants.CANConstants.elevatorLeftId);
+        elevatorLeft = new SparkFlex(Constants.CANConstants.elevatorLeftId, MotorType.kBrushless);
+        elevatorLeftConfig = new SparkFlexConfig();
+
+        elevatorLeftConfig.inverted(true);
+        elevatorLeftConfig.idleMode(IdleMode.kBrake);
+
+        elevatorLeftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+        elevatorLeftConfig.closedLoop.pid(0.1, 0.0, 0.0);
+        elevatorLeftConfig.closedLoop.maxMotion.allowedClosedLoopError(0.5);
+        elevatorLeftConfig.closedLoop.maxMotion.maxVelocity(5);
+        elevatorLeftConfig.closedLoop.maxMotion.maxAcceleration(1);
+
+        elevatorRightConfig.follow(Constants.CANConstants.elevatorLeftId,true);
+
+        elevatorLeft.configure(elevatorLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        elevatorLeftConfig.softLimit
+            .reverseSoftLimit(-71)
+            .reverseSoftLimitEnabled(true).forwardSoftLimit(0).forwardSoftLimitEnabled(true);
+
+        elevatorRight.configure(elevatorRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
         closedLoopControllerLeft = elevatorLeft.getClosedLoopController();
-        
-        elevatorRight = setupElevatorSparkFlex(false, Constants.CANConstants.elevatorRightId);
-        closedLoopControllerRight = elevatorRight.getClosedLoopController();
+        elevatorLeft.getEncoder().setPosition(0);
     }
 
-    public SparkFlex setupElevatorSparkFlex(boolean left, int canid) {
-        SparkFlexConfig config = new SparkFlexConfig();
-        SparkFlex elevatorSpark = new SparkFlex(canid, MotorType.kBrushless);
-
-        config
-            .inverted(left) // left: inverted=true, right: inverted=false
-            .idleMode(IdleMode.kBrake);
-        config.encoder
-            .positionConversionFactor(1)
-            .velocityConversionFactor(1);
-        config.closedLoop
-            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-
-            // Set slot0 values for position PIDF control
-            .pidf(0.1, 0.0, 0.0, feedForward);
-            
-        elevatorSpark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        elevatorSpark.getEncoder().setPosition(0);
-        
-        return elevatorSpark;
-    }
-    
     @Override
     public void runSetpoint(Distance position) {
         currentPosition.mut_replace(position); // probably unneeded since we are capturing inputs elsewhere?
         double level = position.in(Inches);
 
-        closedLoopControllerLeft.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
-                feedForward);
-        closedLoopControllerRight.setReference(level, SparkFlex.ControlType.kPosition, ClosedLoopSlot.kSlot0,
-                feedForward);
+        closedLoopControllerLeft.setReference(level, SparkFlex.ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0,
+                0);
     }
 
     @Override
@@ -123,7 +113,6 @@ public class ElevatorIOReal implements ElevatorIO {
     public void periodic() {
         SmartDashboard.putNumber("Elevator/Left position", elevatorLeft.getEncoder().getPosition());
         SmartDashboard.putNumber("Elevator/Left velocity", elevatorLeft.getEncoder().getVelocity());
-        SmartDashboard.putNumber("Elevator/Feed Forward", feedForward);
     }
 
 
