@@ -149,12 +149,17 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putString("elevator/motor voltage", this.inputs.appliedVoltsLeader.toString());
         SmartDashboard.putString("elevator/motor supply current", this.inputs.supplyCurrentLeader.toString());
         SmartDashboard.putString("elevator/motor torque current", this.inputs.torqueCurrentLeader.toString());
+        SmartDashboard.putString("elevator/motor voltage F", this.inputs.appliedVoltsFollower.toString());
+        SmartDashboard.putString("elevator/motor supply current F", this.inputs.supplyCurrentFollower.toString());
+        SmartDashboard.putString("elevator/motor torque current F", this.inputs.torqueCurrentFollower.toString());
         SmartDashboard.putString("elevator/motor temp", this.inputs.temperatureLeader.toString());   
         SmartDashboard.putString("elevator/position", this.inputs.position.toString());   
         SmartDashboard.putString("elevator/velocity", this.inputs.velocity.toString());   
         SmartDashboard.putString("elevator/setpoint position", this.inputs.setpointPosition.toString());   
         SmartDashboard.putString("elevator/setpoint velocity", this.inputs.setpointVelocity.toString()); 
-
+        SmartDashboard.putNumber("elevator/real motor temp", this.inputs.temperatureLeader.in(Fahrenheit));
+        SmartDashboard.putNumber("elevator/real position", this.inputs.position.in(Inches));
+        SmartDashboard.putNumber("elevator/real setPos", this.inputs.setpointPosition.in(Inches));
     }
 
 
