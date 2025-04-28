@@ -1,5 +1,6 @@
 package frc.robot.subsystems.pivot;
 
+import java.lang.annotation.ElementType;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -12,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.ElevatorStop;
 import frc.robot.util.LoggedTunableNumber;
 
 import static edu.wpi.first.units.Units.*;
@@ -63,28 +66,63 @@ public class Pivot extends SubsystemBase {
         Intake,
         Shoot,
         Up, 
-        Down
+        Down,
+        ShootL1,
+        ShootL4
     };
 
-    // geared at 25:1
+    /*
+     * Note that the real pivot is geared at 27:1.
+     * TODO: AI says we should fix the positionConversionFactor in PivotIOReal
+     * Double-check the positionConversionFactor in the SparkFlexConfig within
+     *  PivotIOReal. It should be set up to correctly account for the 27:1 gearing
+     *   ratio. If this is wrong, it will throw off all of your angle calculations.
+     * The positionConversionFactor should be set to 360.0 / 27.0 if you want the
+     *   encoder to report the angle of the pivot arm.
+     * Ensure that the leader.getAbsoluteEncoder().getPosition() is returning the
+     *   correct value. If it is not, then the positionConversionFactor is likely
+     *   wrong.
+     */
     private final EnumMap<Pivots, Angle> pivotsPos = new EnumMap<>(Map.ofEntries(
             Map.entry(Pivots.Intake, Degrees.of(18.8)), //7.5
             Map.entry(Pivots.Up, Degrees.of(10)), //11
-            Map.entry(Pivots.Shoot, Degrees.of(5)), //18
-            Map.entry(Pivots.Down, Degrees.of(1.5))));
+            Map.entry(Pivots.Shoot, Degrees.of(4.9)), //18
+            Map.entry(Pivots.Down, Degrees.of(1.5)),
+            Map.entry(Pivots.ShootL1, Degrees.of(8)),
+            Map.entry(Pivots.ShootL4, Degrees.of(4))));
 
     
     public Command pivotTo(Pivots pivot) {
         return Commands.runOnce(() -> this.setpoint = pivotsPos.get(pivot));
     }
 
+    /**
+     * Turn pivot to the correct Shoot-angle based on the elevator setting.
+     * @param stop the ElevatorStop
+     */
+    public Command pivotToOnElevator(ElevatorStop stop) {
+        return Commands.runOnce( 
+            () -> {
+                if (stop == ElevatorStop.L4) {
+                    this.setpoint = pivotsPos.get(Pivots.ShootL4);
+                }
+                else if (stop == ElevatorStop.L1) {
+                    this.setpoint = pivotsPos.get(Pivots.ShootL1);
+                }
+                else {
+                    this.setpoint = pivotsPos.get(Pivots.Shoot);    
+                }
+            }
+        );
+    }
+
     public Command setPosition(Angle position) {
         return runOnce(() -> this.setpoint = position);
     }
 
-    public boolean pivotSafe(){
-        return (setpoint.compareTo(pivotsPos.get(Pivots.Up)) > -0.5);
-    }
+    // public boolean isPivotSafe() {
+    //     return (setpoint.compareTo(pivotsPos.get(Pivots.Up)) > -0.5);
+    // }
 
     @Override
     public void periodic() {

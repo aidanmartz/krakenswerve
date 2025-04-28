@@ -1,0 +1,88 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.365,
+        "y": 0.6417499999999996
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.11575,
+        "y": 1.0804999999999996
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.92925,
+        "y": 2.70875
+      },
+      "prevControl": {
+        "x": 3.51975,
+        "y": 2.2407499999999994
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Pivot to Shoot",
+      "waypointRelativePos": 0.3,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Pivot to Shoot"
+        }
+      }
+    },
+    {
+      "name": "Elevator L4",
+      "waypointRelativePos": 0.5,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Elevator L4"
+        }
+      }
+    },
+    {
+      "name": "Shoot",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Shoot"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 59.99999999999999
+  },
+  "reversed": false,
+  "folder": "To Score",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 52.0
+  },
+  "useDefaultConstraints": true
+}

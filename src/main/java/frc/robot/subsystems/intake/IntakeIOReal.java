@@ -5,9 +5,9 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.Robot;
+//import frc.robot.Robot;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -67,7 +67,7 @@ public class IntakeIOReal implements IntakeIO {
     }
 
     @Override
-    public void setSpeed(double speed){
+    public void setSpeed(double speed) {
         intakeMotor.set(speed);
     }
 

@@ -10,9 +10,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.subsystems.pivot.*;
+//import frc.robot.subsystems.pivot.*;
 import frc.robot.util.LoggedTunableNumber;
 
 import static edu.wpi.first.units.Units.*;
@@ -51,6 +52,7 @@ public class Elevator extends SubsystemBase {
         this.actual = RobotState.getMeasuredInstance();
         this.target = RobotState.getDesiredInstance();
         this.goal = RobotState.getGoalInstance();
+        this.nextStop = ElevatorStop.L1; 
 
         measuredVisualizer = new ElevatorVisualizer("Measured", Color.kBlack);
         goalVisualizer = new ElevatorVisualizer("Goal", Color.kBlue);
@@ -68,13 +70,13 @@ public class Elevator extends SubsystemBase {
     };
 
     private final EnumMap<ElevatorStop, Distance> elevatorHeights = new EnumMap<>(Map.ofEntries(
-            Map.entry(ElevatorStop.INTAKE, Inches.of(0.1)),
-            Map.entry(ElevatorStop.L1, Inches.of(3.0)),
-            Map.entry(ElevatorStop.L2, Inches.of(6.0)), // was 8
-            Map.entry(ElevatorStop.L2_ALGAE, Inches.of(13.0)),
-            Map.entry(ElevatorStop.L3, Inches.of(11.5)), // was 13.5
-            Map.entry(ElevatorStop.L3_ALGAE, Inches.of(18.0)),
-            Map.entry(ElevatorStop.L4, Inches.of(22.0))  //19.5
+            Map.entry(ElevatorStop.INTAKE, Inches.of(0)),
+            Map.entry(ElevatorStop.L1, Inches.of(3.5)),
+            Map.entry(ElevatorStop.L2, Inches.of(6.5)), // was 8
+            Map.entry(ElevatorStop.L2_ALGAE, Inches.of(9.5)),
+            Map.entry(ElevatorStop.L3, Inches.of(12.0)), // was 13.5
+            Map.entry(ElevatorStop.L3_ALGAE, Inches.of(13.2)),
+            Map.entry(ElevatorStop.L4, Inches.of(21.2))  //21.2
         ));
 
     public Command moveTo(ElevatorStop stop) {
@@ -87,16 +89,30 @@ public class Elevator extends SubsystemBase {
         else{
             this.io.runVolts(Volts.of(2));
         } */
-        return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(stop));
+        return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(this.nextStop));
+    }
+    public Command moveToIntake() {
+
+          return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(ElevatorStop.INTAKE));
+    }
+    public void moveToL4() {
+        this.setpoint = elevatorHeights.get(ElevatorStop.L4);
     }
 
-
     public Command moveToNext() {
-          return Commands.runOnce(() ->  this.setpoint = elevatorHeights.get(nextStop));
-      }
+        return moveTo(this.nextStop);
+    }
 
-    public void nextStop(ElevatorStop stop){
-        nextStop = stop;
+    public void setNextStop(ElevatorStop stop) {
+        this.nextStop = stop;
+    }
+    
+    public Command setNextStopCommand(ElevatorStop stop) {
+        return new InstantCommand(() -> setNextStop(stop));
+    }
+
+    public ElevatorStop getNextStop() {
+        return this.nextStop;
     }
 
     public Command waitForGreaterThanPosition(Distance position) {
@@ -126,15 +142,22 @@ public class Elevator extends SubsystemBase {
         actual.updateElevatorPosition(this.inputs.position);
         target.updateElevatorPosition(this.inputs.setpointPosition);
         goal.updateElevatorPosition(this.setpoint);
+        
+        SmartDashboard.putString("elevator/next_stop", this.nextStop.toString());
         SmartDashboard.putString("elevator/motor voltage", this.inputs.appliedVoltsLeader.toString());
         SmartDashboard.putString("elevator/motor supply current", this.inputs.supplyCurrentLeader.toString());
         SmartDashboard.putString("elevator/motor torque current", this.inputs.torqueCurrentLeader.toString());
+        SmartDashboard.putString("elevator/motor voltage F", this.inputs.appliedVoltsFollower.toString());
+        SmartDashboard.putString("elevator/motor supply current F", this.inputs.supplyCurrentFollower.toString());
+        SmartDashboard.putString("elevator/motor torque current F", this.inputs.torqueCurrentFollower.toString());
         SmartDashboard.putString("elevator/motor temp", this.inputs.temperatureLeader.toString());   
         SmartDashboard.putString("elevator/position", this.inputs.position.toString());   
         SmartDashboard.putString("elevator/velocity", this.inputs.velocity.toString());   
-        SmartDashboard.putString("elevator/setpoint position", this.inputs.setpointPosition.toString());   
+        SmartDashboard.putString("elevator/setpoint position", this.setpoint.toString());   
         SmartDashboard.putString("elevator/setpoint velocity", this.inputs.setpointVelocity.toString()); 
-
+        SmartDashboard.putNumber("elevator/real motor temp", this.inputs.temperatureLeader.in(Fahrenheit));
+        SmartDashboard.putNumber("elevator/real position", this.inputs.position.in(Inches));
+        SmartDashboard.putNumber("elevator/real setPos", this.inputs.setpointPosition.in(Inches));
     }
 
 

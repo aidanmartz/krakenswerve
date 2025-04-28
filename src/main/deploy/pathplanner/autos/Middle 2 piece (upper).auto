@@ -7,13 +7,43 @@
         {
           "type": "named",
           "data": {
+            "name": "Intake On"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Middle "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Pivot to Shoot"
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Elevator L4"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Start - F"
+            "pathName": "Finish Middle "
           }
         },
         {
@@ -25,43 +55,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F - Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source - E"
+            "pathName": "G - Source"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "Feed"
           }
         },
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": "E - Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source - D"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "D - Source"
+            "waitTime": 1.0
           }
         },
         {
@@ -73,13 +79,37 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "Pivot to Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Elevator L4"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "C - Source"
+            "pathName": "Finish C"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
           }
         }
       ]

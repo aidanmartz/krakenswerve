@@ -7,79 +7,55 @@
         {
           "type": "named",
           "data": {
+            "name": "Intake On"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Middle "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Pivot to Shoot"
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Elevator L4"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Start - F"
+            "pathName": "Finish Middle "
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "F - Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source - E"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "E - Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source - D"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "D - Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source - C"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "C - Source"
           }
         }
       ]

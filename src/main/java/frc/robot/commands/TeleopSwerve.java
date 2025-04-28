@@ -17,10 +17,10 @@ public class TeleopSwerve extends Command {
     private DoubleSupplier strafeSup;
     private DoubleSupplier rotationSup;
     private BooleanSupplier robotCentricSup;
-    private BooleanSupplier useLimelightSup;
+    private BooleanSupplier useCoralLimelightSup;
 
     public TeleopSwerve(Swerve s_Swerve, DoubleSupplier translationSup, DoubleSupplier strafeSup,
-            DoubleSupplier rotationSup, BooleanSupplier robotCentricSup, BooleanSupplier useLimelightSup) {
+            DoubleSupplier rotationSup, BooleanSupplier robotCentricSup, BooleanSupplier useCoralLimelightSup) {
         this.s_Swerve = s_Swerve;
         addRequirements(s_Swerve);
 
@@ -28,7 +28,8 @@ public class TeleopSwerve extends Command {
         this.strafeSup = strafeSup;
         this.rotationSup = rotationSup;
         this.robotCentricSup = robotCentricSup;
-        this.useLimelightSup = useLimelightSup;
+        this.useCoralLimelightSup = useCoralLimelightSup;
+
     }
 
     @Override
@@ -46,8 +47,9 @@ public class TeleopSwerve extends Command {
 
         /* Drive */
         s_Swerve.drive(
+                0.0,
+                0.0,
                 new Translation2d(translationVal, strafeVal).times(Constants.Swerve.maxSpeed),
-                rotationVal * Constants.Swerve.maxAngularVelocity,
-                !robotCentricSup.getAsBoolean(), true, useLimelightSup.getAsBoolean());
+                rotationVal * Constants.Swerve.maxAngularVelocity, true, false, useCoralLimelightSup.getAsBoolean());
     }
 }
